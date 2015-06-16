@@ -12,6 +12,7 @@ def get_server_connection(config_file):
     password = config.get('Connection', 'password')
     protocol = config.get('Connection', 'protocol')
     port = int(config.get('Connection', 'port'))
+    #uid = int(config.get('Connection', 'uid'))
     return openerplib.get_connection(hostname=hostname, database=database, login=login, password=password, protocol=protocol, port=port)
     
 
@@ -35,3 +36,8 @@ def get_faile_file(config_file):
     config = ConfigParser.RawConfigParser()
     config.read(config_file)
     return config.get('Import', 'fail_file')
+    
+def get_max_connection(config_file):
+    config = ConfigParser.RawConfigParser()
+    config.read(config_file)
+    return config.get('Import', 'max_connection')

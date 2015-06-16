@@ -16,13 +16,24 @@ batch_size = conf_lib.get_batch_size(config_file)
 model =  conf_lib.get_model(config_file)
 fail_file = conf_lib.get_faile_file(config_file)
 file_ref = open(file_csv, 'r')
-reader = UnicodeReader(file_ref)
+reader = UnicodeReader(file_ref, delimiter=';')
+print 'open', file_csv
+
 
 connection = conf_lib.get_server_connection(config_file)
 object_registry = connection.get_model(model)
 ir_model_registry = connection.get_model('ir.model.data')
 
 header = reader.next()
+header_len = 0
+for head in header:
+    if head:
+        header_len += 1
+    else:
+        break
+        
+header = header[:header_len]
+        
 try:
     id_index = header.index('id')
 except ValueError as ve:
@@ -32,25 +43,52 @@ except ValueError as ve:
 i = 1
 file_result = open(fail_file, "wb")
 
-c = UnicodeWriter(file_result)
+c = UnicodeWriter(file_result, delimiter=';')
 c.writerow(header)
 file_result.flush()
 for line in reader:
     st = time()
-    lines = [line]
-    xml_ids = [line[id_index]]
+    xml_id = line[id_index].split('.')
+    if len(xml_id) == 2:
+        module_list = [xml_id[0]]
+        xml_ids = [xml_id[1]]
+    else:
+        xml_ids = [xml_id[0]]
+        module_list = []
+
+    lines = [line[:header_len]]
+        
     success = False
     j = 1
-    while j < batch_size:
+    while j < batch_size and line:
         j += 1
         i += 1
-        line = reader.next()
-        lines.append(line)
-        xml_ids.append(line[id_index])
-        
+        try:
+            line = reader.next()[:header_len]
+            lines.append(line)
+            xml_id = line[id_index].split('.')
+            if len(xml_id) == 2:
+                xml_ids.append(xml_id[1])
+                module_list.append(xml_id[0])
+            else:
+                xml_ids.append(xml_id[0])
+
+            
+        except StopIteration:
+            line = False
+
     try:
-        object_registry.load(header, lines)
-        object_ids = ir_model_registry.search([['name', 'in', xml_ids], ['model', '=', model]])
+        res = object_registry.load(header, lines)
+        print res
+        if res['messages']:
+            for msg in res['messages']:
+                print msg
+                print lines[msg['record']]
+                print "------------------------"
+        module_list = list(set(module_list))
+        object_ids = ir_model_registry.search([['name', 'in', xml_ids], ['module', 'in', module_list],['model', '=', model]])
+        print 'ids', len(object_ids), 'xml_ids', len(xml_ids)
+        print 'module', module_list
         if len(object_ids) == len(xml_ids):
             success = True
     except Fault as e:

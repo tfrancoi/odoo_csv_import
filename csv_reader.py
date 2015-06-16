@@ -4,6 +4,7 @@ Created on 16 mai 2014
 @author: openerp
 '''
 import csv, codecs, cStringIO
+import threading
 
 class UTF8Recoder:
     """
@@ -48,8 +49,10 @@ class UnicodeWriter:
         self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
         self.stream = f
         self.encoder = codecs.getincrementalencoder(encoding)()
+        self.lock = threading.RLock()
 
     def writerow(self, row):
+        self.lock.acquire()
         self.writer.writerow([s.encode("utf-8") for s in row])
         # Fetch UTF-8 output from the queue ...
         data = self.queue.getvalue()
@@ -60,7 +63,11 @@ class UnicodeWriter:
         self.stream.write(data)
         # empty queue
         self.queue.truncate(0)
+        self.lock.release()
 
     def writerows(self, rows):
+        self.lock.acquire()
         for row in rows:
             self.writerow(row)
+        self.stream.flush()
+        self.lock.release()
