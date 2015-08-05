@@ -12,6 +12,7 @@ import threading
 from time import time
 from copy import deepcopy
 
+
 class rpc_thread(threading.Thread):
 
      
@@ -66,24 +67,22 @@ class rpc_thread(threading.Thread):
         print "time for batch", self.batch_number, ":", time() - st
             
     def _send_rpc(self):
-        nb_try = 1
         res = {'messages' : True}
-        while res['messages'] and nb_try < 4:
-            res = self.model.load(self.header, self.lines)
-            nb_try += 1
+        res = self.model.load(self.header, self.lines)
         if res['messages']:
             for msg in res['messages']:
-                print msg
-                print self.lines[msg['record']]
-                print "------------------------"
+                print >> sys.stderr, msg
+                print >> sys.stderr, self.lines[msg['record']]
             return False
         
         return True
         
     def check_result(self):
-        object_ids = self.model_data.search([['name', 'in', self.xml_ids], 
-                                             ['module', 'in', self.module_list],
-                                             ['model', '=', self.model.model_name]])
+        domain = [['name', 'in', self.xml_ids], 
+                  ['model', '=', self.model.model_name]]
+        if self.module_list:
+            domain.append(['module', 'in', self.module_list])
+        object_ids = self.model_data.search(domain)
         return len(object_ids) == len(self.xml_ids)
             
 
@@ -99,6 +98,12 @@ batch_size = conf_lib.get_batch_size(config_file)
 model =  conf_lib.get_model(config_file)
 fail_file = conf_lib.get_faile_file(config_file)
 max_connection = conf_lib.get_max_connection(config_file)
+
+if len(sys.argv) > 2 and sys.argv[2] == 'fail':
+    file_csv = fail_file
+    fail_file = fail_file[:-4] + "bis.csv"
+    batch_size = 1
+    max_connection = 1
 
 semaphore = threading.BoundedSemaphore(int(max_connection))
 max_thread_semaphore = threading.BoundedSemaphore(int(max_connection) * 10)
