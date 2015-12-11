@@ -35,8 +35,8 @@ class UnicodeReader:
 
     def __iter__(self):
         return self
-    
-    
+
+
 class UnicodeWriter:
     """
     A CSV writer which will write rows to CSV file "f",

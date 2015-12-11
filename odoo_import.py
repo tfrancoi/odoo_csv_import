@@ -31,15 +31,15 @@ for head in header:
         header_len += 1
     else:
         break
-        
+
 header = header[:header_len]
-        
+
 try:
     id_index = header.index('id')
 except ValueError as ve:
     print "No External Id (id) column defined, please add one"
     raise ve
-    
+
 i = 1
 file_result = open(fail_file, "wb")
 
@@ -57,7 +57,7 @@ for line in reader:
         module_list = []
 
     lines = [line[:header_len]]
-        
+
     success = False
     j = 1
     while j < batch_size and line:
@@ -73,7 +73,7 @@ for line in reader:
             else:
                 xml_ids.append(xml_id[0])
 
-            
+
         except StopIteration:
             line = False
 
@@ -97,7 +97,7 @@ for line in reader:
         print e.faultString
     except ValueError as ve:
         print "Line", i, "Failed"
-        
+
     if not success:
         c.writerows(lines)
         file_result.flush()
