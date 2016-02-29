@@ -99,7 +99,7 @@ class rpc_thread(threading.Thread):
             
 
 parser = argparse.ArgumentParser(description='Import data in batch and in parallel')
-parser.add_argument('-c', '--config', dest='config', default="conf/connection.conf", help='Configuration File')
+parser.add_argument('-c', '--config', dest='config', help='Configuration File')
 parser.add_argument('--file', dest='filename', help='File to import')
 parser.add_argument('--model', dest='model', help='Model to import, if auto try to guess the model from the filename')
 parser.add_argument('--worker', dest='worker', default=1, help='Number of simultaneous connection')

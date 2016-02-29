@@ -1,6 +1,8 @@
 from csv_reader import UnicodeWriter, UnicodeReader
 import csv
-import re
+import os
+
+BASIC_HEADER = ['id', 'name']
 
 """
     Data formatting helper
@@ -61,19 +63,20 @@ def add_m2m(s, PREFIX, value, default=None):
     File Manipulation
     
 """
-def write_file(filename=None, header=None, data=None, fail=False, model="auto", launchfile="import_auto.sh", worker=1, batch_size=10, init=False):
+def write_file(filename=None, header=None, data=None, fail=False, model="auto", launchfile="import_auto.sh", worker=1, batch_size=10, init=False, conf_file=False):
     def get_model():
         if model == "auto":
-            return filename.split('/')[-1][:-4]
+            return filename.split(os.sep)[-1][:-4]
         else:
             return model
+    conf_file = conf_file or "%s%s%s" % ('conf', os.sep, 'connection.conf')
     write_csv(filename, header, data)
 
     mode = init and 'w' or 'a'
     with open(launchfile, mode) as myfile:
-        myfile.write("python odoo_import_thread.py -c conf/connection.conf --file=%s --model=%s --worker=%s --size=%s \n" % (filename, get_model(), worker, batch_size))
+        myfile.write("python odoo_import_thread.py -c %s --file=%s --model=%s --worker=%s --size=%s \n" % (conf_file, filename, get_model(), worker, batch_size))
         if fail:
-            myfile.write("python odoo_import_thread.py -c conf/connection.conf --fail --file=%s --model=%s --worker=%s --size=%s \n" % (filename, get_model(), worker, batch_size))
+            myfile.write("python odoo_import_thread.py -c %s --fail --file=%s --model=%s --worker=%s --size=%s \n" % (conf_file, filename, get_model(), worker, batch_size))
             
 def write_csv(filename, header, data):
     file_result = open(filename, "wb")
@@ -90,7 +93,14 @@ def write_file_dict(filename, header, data):
         data_rows.append(r)
     write_csv(filename, header, data_rows)
 
-def read_file(file_name, id_name):
+def read_file(filename, delimiter=";"):
+    file_ref = open(filename, 'r')
+    reader = UnicodeReader(file_ref, delimiter=delimiter)
+    head = reader.next()
+    data = [d for d in reader]
+    return head, data
+
+def read_file_dict(file_name, id_name):
     file_ref = open(file_name, 'r')
     reader = UnicodeReader(file_ref, delimiter=';')
 
@@ -119,39 +129,6 @@ def merge_header(*args):
         if h and h not in header:
             header.append(h)
     return header
-
-
-
-def check_id_validity(id_field, pattern, header_in, data, null_values=['NULL']):
-    regular = re.compile(pattern)
-    i = 1
-    for line in data:
-        i+=1
-        line = [s.strip() if s.strip() not in null_values else '' for s in line]
-        line_dict = dict(zip(header_in, line))
-        if not regular.match(line_dict[id_field]):
-            print "Check Failed Id Validity", i, line_dict[id_field]
-            continue
-        
-def check_length_validity(length, data):
-    i = 1
-    for line in data:
-        i+=1
-        if len(line) != length:
-            print "Check Failed", i, "Line Length", len(line)
-        
-def check_number_line(line_number, data):
-    if len(data) + 1 != line_number:
-        print "Check Line Number Failed %s instead of %s" % (len(data) + 1, line_number)
-        
-def check_cell_len_max(cell_len, data):
-    i = 1
-    for line in data:
-        i+=1
-        for ele in line:
-            if len(ele) > cell_len:
-                print "Check Failed", i, "Cell Length", len(ele)
-                print line
 
 def process_mapping(header_in, data, mapping, t='list', null_values=['NULL'], verbose=True):
     """

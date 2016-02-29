@@ -9,3 +9,12 @@ lang_map = {
     'Dutch' : u'Dutch / Nederlands',
 }
 
+country_map = {
+    'Belgique' : 'base.be',
+    'BE' : 'base.be',
+    'FR' : 'base.fr',
+    'U.S' : 'base.us',
+    'US' : 'base.us',
+    'NL' : 'base.nl',
+}
+
