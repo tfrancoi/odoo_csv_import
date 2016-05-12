@@ -5,7 +5,7 @@
 lang_map = {
     '' : '',
     'French' : u'French (BE) / Français (BE)',
-    'English' : u'English', 
+    'English' : u'English',
     'Dutch' : u'Dutch / Nederlands',
 }
 

@@ -20,22 +20,22 @@ csv.field_size_limit(sys.maxsize)
 
 class rpc_thread(threading.Thread):
 
-     
-    def __init__(self, semaphore, max_thread_semaphore, model, header, data_lines, model_data, writer, batch_number=0): 
-        threading.Thread.__init__(self) 
-        self.semaphore = semaphore 
+
+    def __init__(self, semaphore, max_thread_semaphore, model, header, data_lines, model_data, writer, batch_number=0):
+        threading.Thread.__init__(self)
+        self.semaphore = semaphore
         self.max_thread_semaphore = max_thread_semaphore
         self.model = model
         self.header = header
         self.lines = [deepcopy(l) for l in data_lines]
-        
+
         self.model_data = model_data
         self._extract_xml_ids()
 
         self.writer = writer
-        
+
         self.batch_number = batch_number
-        
+
     def _extract_xml_ids(self):
         id_index = self.header.index('id')
         self.module_list = set()
@@ -48,8 +48,8 @@ class rpc_thread(threading.Thread):
             else:
                 self.xml_ids.append(xml_id[0])
         self.module_list = list(self.module_list)
-    
-        
+
+
     def run(self):
         success = False
         self.semaphore.acquire()
@@ -71,12 +71,12 @@ class rpc_thread(threading.Thread):
         finally:
             self.semaphore.release()
             self.max_thread_semaphore.release()
-            
+
         if not success:
             self.writer.writerows(self.lines)
-        
+
         print "time for batch", self.batch_number, ":", time() - st
-            
+
     def _send_rpc(self):
         #TODO context in configuration context={'create_product_variant' : True}
         res = self.model.load(self.header, self.lines, context={'tracking_disable' : True, 'create_product_variant' : True,})
@@ -86,17 +86,17 @@ class rpc_thread(threading.Thread):
                 print >> sys.stderr, msg
                 print >> sys.stderr, self.lines[msg['record']]
             return False
-        
+
         return True
-        
+
     def check_result(self):
-        domain = [['name', 'in', self.xml_ids], 
+        domain = [['name', 'in', self.xml_ids],
                   ['model', '=', self.model.model_name]]
         if self.module_list:
             domain.append(['module', 'in', self.module_list])
         object_ids = self.model_data.search(domain)
         return len(object_ids) == len(self.xml_ids)
-            
+
 
 parser = argparse.ArgumentParser(description='Import data in batch and in parallel')
 parser.add_argument('-c', '--config', dest='config', help='Configuration File')
@@ -132,7 +132,7 @@ if args.fail:
     fail_file = fail_file + ".bis"
     batch_size = 1
     max_connection = 1
-    
+
 
 
 semaphore = threading.BoundedSemaphore(int(max_connection))
@@ -141,6 +141,7 @@ max_thread_semaphore = threading.BoundedSemaphore(int(max_connection) * 10)
 file_ref = open(file_csv, 'r')
 reader = UnicodeReader(file_ref, delimiter=';')
 print 'open', file_csv
+print >> sys.stderr, 'open', file_csv
 
 
 connection = conf_lib.get_server_connection(config_file)
@@ -155,21 +156,21 @@ for head in header:
         header_len += 1
     else:
         break
-        
+
 header = header[:header_len]
-        
+
 try:
     id_index = header.index('id')
 except ValueError as ve:
     print "No External Id (id) column defined, please add one"
     raise ve
-    
+
 print "Skipping %s lines" % args.skip
 i = 1
 while i <= int(args.skip):
     reader.next()
     i+= 1;
-    
+
 file_result = open(fail_file, "wb")
 
 c = UnicodeWriter(file_result, delimiter=';', quoting=csv.QUOTE_ALL)
@@ -178,9 +179,9 @@ file_result.flush()
 thread_list = []
 st = time()
 for line in reader:
-    
+
     lines = [line[:header_len]]
-        
+
     j = 1
     while j < batch_size and line:
         j += 1
@@ -188,7 +189,7 @@ for line in reader:
         try:
             line = reader.next()[:header_len]
             lines.append(line)
-            
+
         except StopIteration:
             line = False
     max_thread_semaphore.acquire()
@@ -197,7 +198,7 @@ for line in reader:
     th.start()
     i += 1
 
-    
+
 for t in thread_list:
     t.join()
 file_result.close()

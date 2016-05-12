@@ -41,7 +41,7 @@ partner_header, partner_data = process_mapping(head, data, mapping)
 #Step 5: Define output and import parameter
 file_to_write = [
     {
-        'filename' : 'data/res.partner.csv',
+        'filename' : 'data%sres.partner.csv' % os.sep,
         'header': partner_header,
         'data' : partner_data,
         'worker' : 3, #OPTIONAL

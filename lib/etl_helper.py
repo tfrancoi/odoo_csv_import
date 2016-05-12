@@ -10,10 +10,10 @@ BASIC_HEADER = ['id', 'name']
 """
 def to_xmlid(name):
     return name.replace('.', '_').replace(',', '_').strip()
-    
+
 def list_to_xml_id(names):
     return '_'.join([to_xmlid(name) for name in names])
-    
+
 def to_m2o(PREFIX, value, default=''):
     if not value:
         return default
@@ -22,7 +22,7 @@ def to_m2o(PREFIX, value, default=''):
 def to_m2m(PREFIX, value):
     if not value:
         return ''
-    
+
     ids = []
     for val in value.split(','):
         if val.strip():
@@ -35,7 +35,7 @@ def generate_attribute_list(PREFIX, *attributes):
     for att in attributes:
         lines.add((to_m2o(PREFIX, att), att))
     return header, lines
-""" 
+"""
     Secondary data file helper
 
 """
@@ -43,12 +43,12 @@ def add_parent(s, PREFIX, val, parent_val, default=None):
     default = default or []
     if val and parent_val and val.strip() != parent_val.strip():
         s.add(tuple([PREFIX + to_xmlid(val), PREFIX + to_xmlid(parent_val)] + default))
-    
+
 def add_m2o(s, PREFIX, value, default=None):
     default = default or []
     if value.strip():
         s.add(tuple([PREFIX + to_xmlid(value), value.strip()] + default))
-        
+
 def add_m2m(s, PREFIX, value, default=None):
     if not value.strip():
         return
@@ -61,7 +61,7 @@ def add_m2m(s, PREFIX, value, default=None):
 """
 
     File Manipulation
-    
+
 """
 def write_file(filename=None, header=None, data=None, fail=False, model="auto", launchfile="import_auto.sh", worker=1, batch_size=10, init=False, conf_file=False):
     def get_model():
@@ -77,7 +77,7 @@ def write_file(filename=None, header=None, data=None, fail=False, model="auto", 
         myfile.write("python odoo_import_thread.py -c %s --file=%s --model=%s --worker=%s --size=%s \n" % (conf_file, filename, get_model(), worker, batch_size))
         if fail:
             myfile.write("python odoo_import_thread.py -c %s --fail --file=%s --model=%s --worker=%s --size=%s \n" % (conf_file, filename, get_model(), worker, batch_size))
-            
+
 def write_csv(filename, header, data):
     file_result = open(filename, "wb")
     c = UnicodeWriter(file_result, delimiter=';', quoting=csv.QUOTE_ALL)
@@ -85,7 +85,7 @@ def write_csv(filename, header, data):
     for d in data:
         c.writerow(d)
     file_result.close()
-    
+
 def write_file_dict(filename, header, data):
     data_rows = []
     for k, val in data.iteritems():
@@ -111,7 +111,7 @@ def read_file_dict(file_name, id_name):
             line_dict = dict(zip(head, line))
             res[line_dict[id_name]] = line_dict
     return res, head
-    
+
 def merge_file(master, child, field):
     res = {}
     for key, val in master.iteritems():
@@ -120,8 +120,8 @@ def merge_file(master, child, field):
         new_dict.update(data)
         res[key] = new_dict
     return res
-    
-    
+
+
 def merge_header(*args):
     old_header = [item for sublist in args for item in sublist]
     header = []
@@ -132,7 +132,7 @@ def merge_header(*args):
 
 def process_mapping(header_in, data, mapping, t='list', null_values=['NULL'], verbose=True):
     """
-        @param t: type of return, list or set 
+        @param t: type of return, list or set
     """
     lines_out = [] if t == 'list' else set()
     i = 1
@@ -151,8 +151,38 @@ def process_mapping(header_in, data, mapping, t='list', null_values=['NULL'], ve
             lines_out.append(line_out)
         else:
             lines_out.add(tuple(line_out))
-        
+
     return mapping.keys(), lines_out
+
+def process_join_mapping(header_in, data, mapping, join_field='id', null_values=['NULL'], verbose=True):
+    """
+
+    """
+    lines_out = {}
+    i = 1
+    mapping_copy = dict(mapping)
+    key_mapper = mapping_copy.pop(join_field)
+    for line in data:
+        i+=1
+        line = [s.strip() if s.strip() not in null_values else '' for s in line]
+        line_dict = dict(zip(header_in, line))
+        try:
+            key = key_mapper(line_dict)
+            line_out = [mapping_copy[k](line_dict) for k in mapping_copy.keys()]
+            if not lines_out.get(key):
+                lines_out[key] = line_out
+            else:
+                lines_out[key] = [ ','.join(t) for t in zip(lines_out[key], line_out)]
+
+
+        except SkippingException as e:
+            if verbose:
+                print "Skipping", i
+                print e.message
+            continue
+
+
+    return [join_field] + mapping_copy.keys(), [[k] + val for k, val in lines_out.iteritems()]
 
 def line_id(template_id, values):
     prefix, name = template_id.split('.')
@@ -215,7 +245,7 @@ class attribute_line_dict:
         self.data = {}
         self.att_list = attribute_list_ids
         self.id_gen = id_gen_fun
-        
+
     def add_line(self, line, header):
         """
             line = ['product_tmpl_id/id' : id, 'attribute_id/id' : dict (att : id), 'value_ids/id' : dict(att: id)]
@@ -240,7 +270,7 @@ class attribute_line_dict:
         for template_id, attributes in self.data.iteritems():
             if not template_id:
                 continue
-            for attribute, values in attributes.iteritems(): 
+            for attribute, values in attributes.iteritems():
                 line = [self.id_gen(template_id, attributes), template_id, attribute, ','.join(values)]
                 lines_out.append(line)
         return lines_header, lines_out

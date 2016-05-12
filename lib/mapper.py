@@ -17,6 +17,14 @@ def val(field, default='', postprocess=lambda x: x, skip=False):
         return postprocess(line.get(field, default) or default)
     return val_fun
 
+def val_fallback(field, fallback_file, default='', postprocess=lambda x: x, skip=False):
+    def val_fun(line):
+        if not line[field] and not line[fallback_file] and skip:
+            raise SkippingException("Missing Value for %s" % field)
+        value = line[field] or line[fallback_file] or default
+        return postprocess(value)
+    return val_fun
+
 def concat(separtor, *fields):
     def concat_fun(line):
         return separtor.join([line[f] for f in fields])
@@ -43,7 +51,7 @@ def m2o_create(dataset, PREFIX, field, default=''):
 
 def m2m(PREFIX, *args):
     """
-        @param args: list of string that should be included into the m2m field 
+        @param args: list of string that should be included into the m2m field
     """
     def m2m_fun(line):
         return ','.join([to_m2m(PREFIX, line[f]) for f in args if line[f]])
@@ -51,8 +59,8 @@ def m2m(PREFIX, *args):
 
 def m2m_create(dataset, PREFIX, *args, **kwargs):
     """
-        @param args: list of string that should be included into the m2m field 
-        @param default_values: default values to add to each many2many record created 
+        @param args: list of string that should be included into the m2m field
+        @param default_values: default values to add to each many2many record created
     """
     default_values = kwargs.get("default_values")
     def m2m_create_fun(line):
@@ -70,7 +78,7 @@ def bool_val(field, true_vals=[], false_vals=[]):
             return '0'
         return '1' if line[field] else '0'
     return bool_val_fun
-    
+
 def binary(field, path_prefix):
     def binary_val(line):
         if not line[field]:
@@ -103,7 +111,7 @@ def m2o_att_name(PREFIX, att_list):
     return m2o_att_fun
 
 
-""" 
+"""
     Mapper that require rpc Connection (conf_lib)
 """
 def database_id_mapper(PREFIX, field, connection, skip=False):
@@ -129,6 +137,25 @@ def database_id_mapper_fallback(connection, *fields_mapper, **kwargs):
             rec = connection.get_model('ir.model.data').search_read([('module', '=', module), ('name', '=', name)], ['res_id'])
             if rec and rec[0]['res_id']:
                 return str(rec[0]['res_id'])
+        if skip:
+            raise SkippingException("%s not found" % res)
+        return ''
+    return database_id_mapper_fun
+
+def database_id_mapper_fallback_create(connection, model, *fields_mapper, **kwargs):
+    skip = kwargs.get("skip")
+    def database_id_mapper_fun(line):
+        res = [f(line) for f in fields_mapper if f(line)]
+        if res:
+            res = res[0]
+            module, name = res.split('.')
+            rec = connection.get_model('ir.model.data').search_read([('module', '=', module), ('name', '=', name)], ['res_id'])
+            if rec and rec[0]['res_id']:
+                return str(rec[0]['res_id'])
+            else:
+                print "import"
+                connection.get_model(model).load(['id', 'name'], [[res, res]], context={'tracking_disable' : True, 'create_product_variant' : True,})
+                return database_id_mapper_fun(line)
         if skip:
             raise SkippingException("%s not found" % res)
         return ''
