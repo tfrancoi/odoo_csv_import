@@ -26,10 +26,22 @@ def val_fallback(field, fallback_file, default='', postprocess=lambda x: x, skip
         return postprocess(value)
     return val_fun
 
-def concat(separtor, *fields):
+def val_label(field, default='', postprocess=lambda x: x, skip=False):
+    val_m = val(field, default=default, postprocess=postprocess, skip=skip)
+    def val_label_fun(line):
+        return "%s : %s" % (field, val_m(line))
+    return val_label_fun
+
+def concat_mapper(separtor, *mapper):
     def concat_fun(line):
-        return separtor.join([line[f] for f in fields])
+        return separtor.join([m(line) for m in mapper if m(line)])
     return concat_fun
+
+def concat(separtor, *fields):
+    return concat_mapper(separtor, *[val(f) for f in fields])
+
+def concat_field(separtor, *fields):
+    return concat_mapper(separtor, *[val_label(f) for f in fields])
 
 def map_val(field, mapping, default=''):
     return val(field, postprocess=lambda x : mapping.get(x, default))
@@ -62,10 +74,12 @@ def m2m_create(dataset, PREFIX, *args, **kwargs):
     """
         @param args: list of string that should be included into the m2m field
         @param default_values: default values to add to each many2many record created
+        @param const_values: constant values that will be add to all line
     """
     default_values = kwargs.get("default_values")
+    const_values = kwargs.get("const_values", [])
     def m2m_create_fun(line):
-        value = ','.join([to_m2m(PREFIX, line[f]) for f in args if line[f]])
+        value = ','.join([to_m2m(PREFIX, line[f]) for f in args if line[f]] + const_values)
         for f in args:
             add_m2m(dataset, PREFIX, line[f], default_values)
         return value

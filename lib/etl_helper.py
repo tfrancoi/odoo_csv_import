@@ -63,7 +63,7 @@ def add_m2m(s, PREFIX, value, default=None):
     File Manipulation
 
 """
-def write_file(filename=None, header=None, data=None, fail=False, model="auto", launchfile="import_auto.sh", worker=1, batch_size=10, init=False, conf_file=False):
+def write_file(filename=None, header=None, data=None, fail=False, model="auto", launchfile="import_auto.sh", worker=1, batch_size=10, init=False, conf_file=False, split='', sep=";"):
     def get_model():
         if model == "auto":
             return filename.split(os.sep)[-1][:-4]
@@ -74,9 +74,9 @@ def write_file(filename=None, header=None, data=None, fail=False, model="auto", 
 
     mode = init and 'w' or 'a'
     with open(launchfile, mode) as myfile:
-        myfile.write("python odoo_import_thread.py -c %s --file=%s --model=%s --worker=%s --size=%s \n" % (conf_file, filename, get_model(), worker, batch_size))
+        myfile.write("python odoo_import_thread.py -c %s --file=%s --model=%s --worker=%s --size=%s --split=%s --sep=\"%s\" \n" % (conf_file, filename, get_model(), worker, batch_size, split, sep))
         if fail:
-            myfile.write("python odoo_import_thread.py -c %s --fail --file=%s --model=%s --worker=%s --size=%s \n" % (conf_file, filename, get_model(), worker, batch_size))
+            myfile.write("python odoo_import_thread.py -c %s --fail --file=%s --model=%s --worker=%s --size=%s --sep=\"%s\" \n" % (conf_file, filename, get_model(), worker, batch_size, sep))
 
 def write_csv(filename, header, data):
     file_result = open(filename, "wb")
@@ -129,6 +129,17 @@ def merge_header(*args):
         if h and h not in header:
             header.append(h)
     return header
+
+def split_file(head, data, split_fun):
+    """
+        :param data: list of list
+        :param split_fun: a function that take a dict and return a key all the line will be grouped by key
+    """
+    res = {}
+    for d in data:
+        k = split_fun(dict(zip(head, d)))
+        res.setdefault(k, []).append(d)
+    return res
 
 def process_mapping(header_in, data, mapping, t='list', null_values=['NULL'], verbose=True):
     """
