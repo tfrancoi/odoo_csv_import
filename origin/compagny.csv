@@ -1,0 +1,11 @@
+Company_ID;Company_Name;Phone;www;Account_Manager;address1;city;zip code;country;IsCustomer;IsSupplier;Language;Contact First Name;Contact Last Name;Contact Email;Contact Title
+COM15602;Company BV;8988 2436428   ;www.company.com;Thibault;Rue de la poste;Brussel;14589;Belgique;1;;French;Alexis;WU;mail1@mail.com;Mrs
+COM12639;John SPRL;56528 221505;www.john.fr;Francois;Downing Street;Paris;14590;FR;1;;Dutch;Thibault;Francois;mail2@mail.com;Mrs
+COM20695;Odoo SA;98779 342 19 45 ;www.odoo.com;Francois;La prèle, 3;New york;14591;U.S;1;;Dutch;Gregory ;Huvelle;mail3@mail.com;Mrs
+COM7663;Kangoo LTD;1310 3240077;;Francois;Glass AV;Amsterdam;14592;U.S;1;;Dutch;Antoine;Leberger;mail4@mail.com;Dr.
+COM23594;Odoo INC;0465476 392761;;Thibault;Home sweet Home;Mechelen;14593;BE;1;;Dutch;Neil;;mail5@mail.com;Mrs
+COM25801;Mike Corsoft inc;6456444-7070;www.mike.crosfot;Thibault;PO Box 13821;Lyon;14594;FR;;1;Dutch;Declan;;mail6@mail.com;
+COM7778;Odoo Limited;679789 5034221;;Francois;Marnixstraat 21;SF;14595;U.S;;;Dutch;John;Doe;mail7@mail.com;Ir.
+COM12268;Thomas sprl;65479845 5275812;;Thibault;Eggelaan 23;Delft;14596;NL;;;Dutch;Nicolas;Hollande;mail8@mail.com;President
+COM18683;Bois&co;654798 50 67 08 72;;Francois;J en M Sabbestraat 11;Marche-en-famenne;14597;Belgique;1;;Dutch;Celine;Descartes;mail9@mail.com;Mme
+COM23750;Roger Namur;6579 2 729 51 03;www.sa.eu;Francois;Rue de la Fusée 96;Namur;14598;Belgique;;;Dutch;Aurore;Lesage;mail10@mail.com;Mlle

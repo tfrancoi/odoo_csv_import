@@ -3,6 +3,7 @@
 """
 from etl_helper import to_m2m, to_m2o, add_m2o, add_m2m, SkippingException
 import base64
+import os
 
 
 def const(value):
@@ -79,11 +80,14 @@ def bool_val(field, true_vals=[], false_vals=[]):
         return '1' if line[field] else '0'
     return bool_val_fun
 
-def binary(field, path_prefix):
+def binary(field, path_prefix, skip=False):
     def binary_val(line):
-        if not line[field]:
+        path = path_prefix + (line[field] or '')
+        if not os.path.exists(path):
+            if skip:
+                raise SkippingException("Missing File %s for field %s" % (path, field))
             return ''
-        path = path_prefix + line[field]
+
         with open(path, "rb") as image_file:
                 encoded_string = base64.b64encode(image_file.read())
                 image_file.close()
