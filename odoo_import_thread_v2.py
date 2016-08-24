@@ -19,29 +19,43 @@ csv.field_size_limit(sys.maxsize)
 
 from itertools import islice, chain
 
+from lib.rpc_thread import RpcThread
+
+
+
 def batch(iterable, size):
     sourceiter = iter(iterable)
     while True:
         batchiter = islice(sourceiter, size)
         yield chain([batchiter.next()], batchiter)
 
-class rpc_thread(threading.Thread):
+class RPCThreadImport(RpcThread):
 
-    def __init__(self, semaphore, max_thread_semaphore, model, header, data_lines, model_data, writer, batch_number=0, batch_size=20, to_run=True):
-        threading.Thread.__init__(self)
-        self.semaphore = semaphore
-        self.max_thread_semaphore = max_thread_semaphore
+    def __init__(self, max_connection, model, header, data_lines, model_data, writer, batch_size=20):
+        super(RPCThreadImport, self).__init__(self, max_connection)
         self.model = model
         self.header = header
-        self.lines = [deepcopy(l) for l in data_lines]
         self.batch_size = batch_size
-
         self.model_data = model_data
-
         self.writer = writer
 
-        self.batch_number = batch_number
-        self.to_run = to_run
+
+    def launch_batch(self, data_lines, batch_number, to_run=True):
+        def launch_batch_fun(lines, batch_number, to_run):
+            if not to_run:
+                print "Skip %s" % batch_number
+                return
+            lines = []
+            i = 0
+            for lines in batch(self.lines, self.batch_size):
+                lines = [l for l in lines]
+                xml_ids, module_list = self._extract_xml_ids(lines)
+                self.single_batch_run(lines, xml_ids, module_list, i)
+                i += 1
+            if len(self.lines) > self.batch_size: #print only start batch if batch greater then a onetime batch
+                print "Batch %s Done" % self.batch_number
+            
+        lines = [deepcopy(l) for l in data_lines]
 
     def _extract_xml_ids(self, lines):
         id_index = self.header.index('id')
@@ -85,23 +99,7 @@ class rpc_thread(threading.Thread):
 
 
     def run(self):
-        if not self.to_run:
-            print "Skip %s" % self.batch_number
-            return
-        lines = []
-        i = 0
-        self.semaphore.acquire()
-        if len(self.lines) > self.batch_size: #print only start batch if batch greater then a onetime batch
-            print "Start Batch %s" % self.batch_number
-        for lines in batch(self.lines, self.batch_size):
-            lines = [l for l in lines]
-            xml_ids, module_list = self._extract_xml_ids(lines)
-            self.single_batch_run(lines, xml_ids, module_list, i)
-            i += 1
-        self.semaphore.release()
-        self.max_thread_semaphore.release()
-        if len(self.lines) > self.batch_size: #print only start batch if batch greater then a onetime batch
-            print "Batch %s Done" % self.batch_number
+        
 
     def _send_rpc(self, lines, sub_batch_number):
         #TODO context in configuration context={'create_product_variant' : True}
@@ -189,7 +187,7 @@ if args.ignore:
     ignore = args.ignore.split(',')
 
 
-
+rpc_thread = RpcThread(int(max_connection))
 
 semaphore = threading.BoundedSemaphore(int(max_connection))
 max_thread_semaphore = threading.BoundedSemaphore(int(max_connection) * 10)
@@ -267,9 +265,7 @@ while  i < len(data):
     thread_list.append(th)
     th.start()
 
-print "Total Batch", len(thread_list)
-for t in thread_list:
-    t.join()
+rpc_thread.wait()
 file_result.close()
 
 print "total time", time() - st
