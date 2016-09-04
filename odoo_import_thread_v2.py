@@ -31,7 +31,7 @@ def batch(iterable, size):
 
 class RPCThreadImport(RpcThread):
 
-    def __init__(self, max_connection, model, header, data_lines, model_data, writer, batch_size=20):
+    def __init__(self, max_connection, model, header, model_data, writer, batch_size=20):
         super(RPCThreadImport, self).__init__(self, max_connection)
         self.model = model
         self.header = header
@@ -52,10 +52,9 @@ class RPCThreadImport(RpcThread):
                 xml_ids, module_list = self._extract_xml_ids(lines)
                 self.single_batch_run(lines, xml_ids, module_list, i)
                 i += 1
-            if len(self.lines) > self.batch_size: #print only start batch if batch greater then a onetime batch
-                print "Batch %s Done" % self.batch_number
             
         lines = [deepcopy(l) for l in data_lines]
+        self.spawn_thread(launch_batch_fun, [lines, batch_number], {'to_run' : to_run})
 
     def _extract_xml_ids(self, lines):
         id_index = self.header.index('id')
@@ -97,9 +96,6 @@ class RPCThreadImport(RpcThread):
 
         print "time for batch %s" % self.batch_number, '-', (sub_batch_number + 1) * self.batch_size, 'of', len(self.lines), ":", time() - st
 
-
-    def run(self):
-        
 
     def _send_rpc(self, lines, sub_batch_number):
         #TODO context in configuration context={'create_product_variant' : True}
@@ -187,7 +183,6 @@ if args.ignore:
     ignore = args.ignore.split(',')
 
 
-rpc_thread = RpcThread(int(max_connection))
 
 semaphore = threading.BoundedSemaphore(int(max_connection))
 max_thread_semaphore = threading.BoundedSemaphore(int(max_connection) * 10)
@@ -231,7 +226,7 @@ file_result = open(fail_file, "wb")
 c = UnicodeWriter(file_result, delimiter=separator, quoting=csv.QUOTE_ALL)
 c.writerow(filter_header_ignore(ignore, header))
 file_result.flush()
-thread_list = []
+rpc_thread = RpcThread(int(max_connection), object_registry, filter_header_ignore(ignore, header), ir_model_registry, c, batch_size)
 st = time()
 
 data = [l for l in reader]
@@ -256,16 +251,9 @@ while  i < len(data):
         previous_split_value = line[split_index]
         j += 1
         i += 1
-    batch_number = split and "[%s] - [%s]" % (len(thread_list), previous_split_value) or "[%s]" % len(thread_list)
-    max_thread_semaphore.acquire()
-    run = True
-    #if len(thread_list) in [1,14]:
-    #    run = True
-    th = rpc_thread(semaphore, max_thread_semaphore, object_registry, filter_header_ignore(ignore, header), lines, ir_model_registry, c, batch_number, batch_size, to_run=run)
-    thread_list.append(th)
-    th.start()
+    batch_number = split and "[%s] - [%s]" % (rpc_thread.thread_number(), previous_split_value) or "[%s]" % len(rpc_thread.thread_number())
+    rpc_thread.launch_batch(lines, batch_number)
 
-rpc_thread.wait()
 file_result.close()
 
 print "total time", time() - st

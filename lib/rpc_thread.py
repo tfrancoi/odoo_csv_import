@@ -13,7 +13,7 @@ class RpcThread():
         self.max_thread_semaphore = threading.BoundedSemaphore(max_connection * 4)
         self.thread_list = []
 
-    def spawn_thread(self, fun, args, kwarg=None, skip_error=False):
+    def spawn_thread(self, fun, args, kwarg=None):
         def wrapper(args, kwarg):
             kwarg = kwarg or {}
             self.semaphore.acquire()
@@ -29,3 +29,6 @@ class RpcThread():
     def wait(self):
         for t in self.thread_list:
             t.join()
+
+    def thread_number(self):
+        return len(self.thread_list)
