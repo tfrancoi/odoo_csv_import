@@ -1,5 +1,7 @@
 import openerplib
 import ConfigParser
+import logging
+import sys
 
 
 def get_server_connection(config_file):
@@ -41,3 +43,25 @@ def get_max_connection(config_file):
     config = ConfigParser.RawConfigParser()
     config.read(config_file)
     return config.get('Import', 'max_connection')
+
+def init_logger():
+    logger_err = logging.getLogger("error")
+    logger_err.setLevel(logging.INFO)
+    err = logging.StreamHandler(sys.stderr)
+    logger_err.addHandler(err)
+    logger = logging.getLogger("info")
+    logger.setLevel(logging.INFO)
+    out = logging.StreamHandler(sys.stdout)
+    logger.addHandler(out)
+
+def log_info(msg):
+    logging.getLogger("info").info(msg)
+
+def log_error(msg):
+    logging.getLogger("error").info(msg)
+
+def log(msg):
+    log_info(msg)
+    log_error(msg)
+
+init_logger()

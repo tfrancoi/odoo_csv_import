@@ -1,12 +1,13 @@
+#-*- coding: utf-8 -*-
 '''
-Created on 19 août 2016
+Created on 19 august 2016
 
-@author: Thibault Francois
+@author: Thibault Francois <francois.th@gmail.com>
 '''
 
 import threading
 
-class RpcThread():
+class RpcThread(object):
 
     def __init__(self, max_connection):
         self.semaphore = threading.BoundedSemaphore(max_connection)
