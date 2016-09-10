@@ -1,7 +1,8 @@
 """
     Mapper
 """
-from etl_helper import to_m2m, to_m2o, add_m2o, add_m2m, SkippingException
+from internal.tools import to_m2m, to_m2o, add_m2o, add_m2m
+from internal.exceptions import SkippingException
 import base64
 import os
 
