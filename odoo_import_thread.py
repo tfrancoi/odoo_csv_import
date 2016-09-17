@@ -5,7 +5,7 @@ Created on 16 mai 2014
 @author: Thibault Francois <francois.th@gmail.com>
 '''
 
-from lib.csv_reader import UnicodeReader, UnicodeWriter
+from lib.internal.csv_reader import UnicodeReader, UnicodeWriter
 from xmlrpclib import Fault
 from lib import conf_lib
 from lib.conf_lib import log_error, log_info, log
@@ -14,7 +14,7 @@ import sys
 import csv
 from time import time
 from itertools import islice, chain
-from lib.rpc_thread import RpcThread
+from lib.internal.rpc_thread import RpcThread
 
 csv.field_size_limit(sys.maxsize)
 

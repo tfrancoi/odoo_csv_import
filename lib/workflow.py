@@ -4,32 +4,8 @@ Created on 7 avr. 2016
 @author: odoo
 '''
 import xmlrpclib
-import threading
 from time import time
-
-class RpcThread():
-
-    def __init__(self, max_connection):
-        self.semaphore = threading.BoundedSemaphore(max_connection)
-        self.max_thread_semaphore = threading.BoundedSemaphore(max_connection * 4)
-        self.thread_list = []
-
-    def spawn_thread(self, fun, args, kwarg=None, skip_error=False):
-        def wrapper(args, kwarg):
-            kwarg = kwarg or {}
-            self.semaphore.acquire()
-            fun(*args, **kwarg)
-            self.semaphore.release()
-            self.max_thread_semaphore.release()
-        self.max_thread_semaphore.acquire()
-
-        thread = threading.Thread(None, wrapper, None, [args, kwarg], {})
-        thread.start()
-        self.thread_list.append(thread)
-
-    def wait(self):
-        for t in self.thread_list:
-            t.join()
+from internal.rpc_thread import RpcThread
 
 class InvoiceWorkflowV9():
     def __init__(self, connection, field, status_map, paid_date_field, payment_journal, max_connection=4):

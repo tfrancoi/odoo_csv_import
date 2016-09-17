@@ -2,18 +2,34 @@
 import os
 #Import toolkit
 from lib import mapper
-from lib.etl_helper import read_file, process_mapping, process_write_file
-from lib.data_checker import check_id_validity, check_length_validity
+from lib.transform import Processor
+#from lib.etl_helper import read_file, process_mapping, process_write_file
+#from lib.data_checker import check_id_validity, check_length_validity
 #Import specific data needed for the import
-from mapping import country_map, lang_map
-from prefix import PARTNER_PREFIX
 
+lang_map = {
+    '' : '',
+    'French' : u'French (BE) / Français (BE)',
+    'English' : u'English',
+    'Dutch' : u'Dutch / Nederlands',
+}
+
+country_map = {
+    'Belgique' : 'base.be',
+    'BE' : 'base.be',
+    'FR' : 'base.fr',
+    'U.S' : 'base.us',
+    'US' : 'base.us',
+    'NL' : 'base.nl',
+}
+
+PARTNER_PREFIX = "TEST_PARTNER"
 
 #STEP 1 : read the needed file(s)
-head, data = read_file('origin%scontact.csv' % os.sep)
-#DISPLAY header
+processor = Processor('origin%scontact.csv' % os.sep)
+#Print o2o mapping 
 import pprint
-pprint.pprint(head)
+pprint.pprint(processor.get_o2o_mapping())
 
 #STEP 2 : Define the mapping for every object to import
 mapping =  {
@@ -32,21 +48,11 @@ mapping =  {
 }
 
 #Step 3: Check data quality (Optional)
-check_length_validity(12, data)
-check_id_validity('Company_ID', "COM\d", head, data)
+#check_length_validity(12, data)
+#check_id_validity('Company_ID', "COM\d", head, data)
 
 #Step 4: Process data
-partner_header, partner_data = process_mapping(head, data, mapping)
+processor.process(mapping, 'data%sres.partner.csv' % os.sep, { 'worker' : 2, 'batch_size' : 5}, 'set')
 
 #Step 5: Define output and import parameter
-file_to_write = [
-    {
-        'filename' : 'data%sres.partner.csv' % os.sep,
-        'header': partner_header,
-        'data' : partner_data,
-        'worker' : 3, #OPTIONAL
-        'batch_size' : 10, #OPTIONAL
-    },
-]
-
-process_write_file("1_contact_import.sh", file_to_write)
+processor.write_to_file("2_contact_import.sh", python_exe='python-coverage run -a', path='../')

@@ -1,7 +1,7 @@
 """
     Mapper
 """
-from internal.tools import to_m2m, to_m2o, add_m2o, add_m2m
+from internal.tools import to_m2m, to_m2o
 from internal.exceptions import SkippingException
 import base64
 import os
@@ -57,34 +57,16 @@ def m2o(PREFIX, field, default='', skip=False):
         return to_m2o(PREFIX, line[field], default=default)
     return m2o_fun
 
-def m2o_create(dataset, PREFIX, field, default=''):
-    def m2o_create_fun(line):
-        add_m2o(dataset, PREFIX, line[field], default=default)
-        return to_m2o(PREFIX, line[field], default=default)
-    return m2o_create_fun
-
 def m2m(PREFIX, *args):
     """
         @param args: list of string that should be included into the m2m field
     """
+    #TODO: add default
     def m2m_fun(line):
         return ','.join([to_m2m(PREFIX, line[f]) for f in args if line[f]])
     return m2m_fun
 
-def m2m_create(dataset, PREFIX, *args, **kwargs):
-    """
-        @param args: list of string that should be included into the m2m field
-        @param default_values: default values to add to each many2many record created
-        @param const_values: constant values that will be add to all line
-    """
-    default_values = kwargs.get("default_values")
-    const_values = kwargs.get("const_values", [])
-    def m2m_create_fun(line):
-        value = ','.join([to_m2m(PREFIX, line[f]) for f in args if line[f]] + const_values)
-        for f in args:
-            add_m2m(dataset, PREFIX, line[f], default_values)
-        return value
-    return m2m_create_fun
+
 
 def bool_val(field, true_vals=[], false_vals=[]):
     def bool_val_fun(line):
@@ -179,3 +161,57 @@ def database_id_mapper_fallback_create(connection, model, *fields_mapper, **kwar
             raise SkippingException("%s not found" % res)
         return ''
     return database_id_mapper_fun
+
+
+
+#For many2many specific process
+def m2m_id_list(PREFIX, *args, **kwargs):
+    """
+        @param args: list of string that should be included into the m2m field
+        @param const_values: constant values that will be add to all line
+    """
+    const_values = kwargs.get("const_values", [])
+    def split_m2m_id_fun(line):
+        """ Return a list of unique element (xml_id, name)
+        """
+        value = ','.join([to_m2m(PREFIX, line[f]) for f in args if line[f]] + const_values)
+        s = []
+        for val in value.split(','):
+            if val.strip():
+                s.append(val)
+        return s
+    return split_m2m_id_fun
+
+def m2m_value_list(*args, **kwargs):
+    """
+        @param args: list of string that should be included into the m2m field
+        @param const_values: constant values that will be add to all line
+    """
+    const_values = kwargs.get("const_values", [])
+    def split_m2m_value_fun(line):
+        """ Return a list of unique element (xml_id, name)
+        """
+        value = ','.join([line[f] for f in args if line[f]] + const_values)
+        s = []
+        for val in value.split(','):
+            if val.strip():
+                s.append(val)
+        return s
+    return split_m2m_value_fun
+
+
+##############################
+#                            #
+#        Split Mapper        #
+#                            #
+##############################
+
+def split_line_number(line_nb):
+    """
+        Return a function that can we used by split method from Processor class,
+        this function will split the data every x lines where x is given by the param line_nb
+        :param line_nb: 
+    """
+    def split(line, i):
+        return divmod(i, line_nb)[0]
+    return split

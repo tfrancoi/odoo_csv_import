@@ -1,6 +1,6 @@
 import conf_lib
-import csv_reader
+from lib.internal import csv_reader
 import etl_helper
 import workflow
-import data_checker
+from lib import checker
 import mapper
