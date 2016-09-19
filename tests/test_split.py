@@ -41,7 +41,8 @@ tag_mapping = {
 }
 
 processor = transform.Processor(header=header, data=data)
-p_dict = processor.split(mapper.split_line_number(1000))
+p_dict = processor.split(mapper.split_line_number(1000)) #Useless just for coverage
+p_dict = processor.split(mapper.split_file_number(8))
 processor.process(tag_mapping, tag_output, {
     'worker' : 1, #OPTIONAL
     'batch_size' : 10, #OPTIONAL

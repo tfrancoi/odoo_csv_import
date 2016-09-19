@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 #Import toolkit
-from lib import mapper
+from lib import mapper, checker
 from lib.transform import Processor
 #from lib.etl_helper import read_file, process_mapping, process_write_file
 #from lib.data_checker import check_id_validity, check_length_validity
@@ -44,12 +44,15 @@ mapping =  {
     'company_type' : mapper.const('company'),
     'customer' : mapper.bool_val('IsCustomer', ['1'], ['0']),
     'supplier' : mapper.bool_val('IsSupplier', ['1'], ['0']),
-    'lang' : mapper.map_val('Language', lang_map)
+    'lang' : mapper.map_val('Language', lang_map),
+    'image' : mapper.binary("Image", "origin/img/"),
 }
 
 #Step 3: Check data quality (Optional)
-#check_length_validity(12, data)
-#check_id_validity('Company_ID', "COM\d", head, data)
+processor.check(checker.cell_len_checker(30))
+processor.check(checker.id_validity_checker('Company_ID', "COM\d"))
+processor.check(checker.line_length_checker(13))
+processor.check(checker.line_number_checker(21))
 
 #Step 4: Process data
 processor.process(mapping, 'data%sres.partner.csv' % os.sep, { 'worker' : 2, 'batch_size' : 5}, 'set')

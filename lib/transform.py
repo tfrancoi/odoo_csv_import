@@ -25,12 +25,13 @@ class Processor(object):
             raise Exception("No Filename nor header and data provided")
 
     def check(self, check_fun, message=None):
-        res = check_fun()
+        res = check_fun(self.header, self.data)
         if not res:
             if message:
                 print message
             else:
-                "check %s failded" % check_fun.__name__
+                print "%s failed" % check_fun.__name__
+        return res
 
     def split(self, split_fun):
         res = {}

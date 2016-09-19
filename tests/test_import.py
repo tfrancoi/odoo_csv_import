@@ -15,7 +15,7 @@ script = '0_partner_generated.sh'
 tags = ["Tag %s" % i for i in xrange(0,100)]
 
 header = ['id', 'tags']
-data = [[str(i), ','.join(tags[random.randint(0, 99)] for i in xrange(0, 5))] for i in xrange(0,1000)]
+data = [[str(i), ','.join(tags[random.randint(0, 99)] for i in xrange(0, 5))] for i in xrange(0,10000)]
 
 
 mapping = {

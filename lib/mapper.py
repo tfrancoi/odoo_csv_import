@@ -80,7 +80,7 @@ def bool_val(field, true_vals=[], false_vals=[]):
 def binary(field, path_prefix, skip=False):
     def binary_val(line):
         path = path_prefix + (line[field] or '')
-        if not os.path.exists(path):
+        if not os.path.exists(path) or not line[field]:
             if skip:
                 raise SkippingException("Missing File %s for field %s" % (path, field))
             return ''
@@ -214,4 +214,16 @@ def split_line_number(line_nb):
     """
     def split(line, i):
         return divmod(i, line_nb)[0]
+    return split
+
+
+def split_file_number(file_nb):
+    """
+        Return a function that can we used by split method from Processor class,
+        this function will split the data into x file where x is given by the param file_nb
+        Order of data is not kept
+        :param line_nb: 
+    """
+    def split(line, i):
+        return divmod(i, file_nb)[1]
     return split
