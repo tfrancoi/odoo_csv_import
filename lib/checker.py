@@ -7,25 +7,32 @@ Created on 29 feb. 2016
 #TODO
 import re
 
-def check_id_validity(id_field, pattern, header_in, data, null_values=['NULL']):
-    regular = re.compile(pattern)
-    i = 1
-    for line in data:
-        i+=1
-        line = [s.strip() if s.strip() not in null_values else '' for s in line]
-        line_dict = dict(zip(header_in, line))
-        if not regular.match(line_dict[id_field]):
-            print "Check Failed Id Validity", i, line_dict[id_field]
-            continue
+def id_validity_checker(id_field, pattern, null_values=['NULL']):
+    def check_id_validity(header, data):
+        regular = re.compile(pattern)
+        res = True
+        for i, line in enumerate(data):
+            line = [s.strip() if s.strip() not in null_values else '' for s in line]
+            line_dict = dict(zip(header, line))
+            if not regular.match(line_dict[id_field]):
+                print "Check Failed Id Validity", i+1, line_dict[id_field]
+                res = False
+        return res
+    return check_id_validity
 
-def check_length_validity(length, data):
-    i = 1
-    for line in data:
-        i+=1
-        if len(line) != length:
-            print "Check Failed", i, "Line Length", len(line)
+def line_length_checker(length):
+    def check_line_length(header, data):
+        i = 1
+        res = True
+        for line in data:
+            i+=1
+            if len(line) != length:
+                print "Check Failed", i, "Line Length", len(line)
+                res = False
+        return res
+    return check_line_length
 
-def check_number_line(line_number, data):
+def line_number_checker(line_number):
     def check_line_numner(header, data):
         if len(data) + 1 != line_number:
             print "Check Line Number Failed %s instead of %s" % (len(data) + 1, line_number)
@@ -34,16 +41,14 @@ def check_number_line(line_number, data):
             return True
     return check_line_numner
 
-def check_cell_len_max(cell_len):
-    def check_cell_len_fun(header, data):
+def cell_len_checker(max_cell_len):
+    def check_max_cell_len(header, data):
         res = True
-        i = 1
-        for line in data:
-            i+=1
+        for i, line in enumerate(data):
             for ele in line:
-                if len(ele) > cell_len:
-                    print "Check Failed", i, "Cell Length", len(ele)
+                if len(ele) > max_cell_len:
+                    print "Check Failed", i + 1, "Cell Length", len(ele)
                     print line
                     res = False
         return res
-    return check_cell_len_fun
+    return check_max_cell_len
