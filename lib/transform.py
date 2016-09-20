@@ -6,12 +6,12 @@ Created on 10 sept. 2016
 '''
 from collections import OrderedDict
 from lib.internal.csv_reader import UnicodeReader
-from internal.tools import ReprWrapper
+from lib import mapper
+from internal.tools import ReprWrapper, AttributeLineDict
 from internal.file import write_file
 from internal.exceptions import SkippingException
 
 import os
-import mapper
 
 class Processor(object):
     def __init__(self, filename=None, delimiter=";", encoding='utf-8-sig', header=None, data=None):
@@ -67,11 +67,7 @@ class Processor(object):
             head, data = self.__process_mapping_m2m(mapping, null_values=null_values, verbose=verbose)
         else:
             head, data = self.__process_mapping(mapping, t=t, null_values=null_values, verbose=verbose)
-        import_args = dict(import_args)
-        import_args['filename'] = os.path.abspath(filename_out)
-        import_args['header'] = head
-        import_args['data'] = data
-        self.file_to_write[filename_out] = import_args
+        self._add_data(head, data, filename_out, import_args)
 
     def write_to_file(self, script_filename, fail=True, append=False, python_exe='python', path='./'):
         init = not append
@@ -148,4 +144,48 @@ class Processor(object):
 
         return head, lines_out
 
-    
+    def _add_data(self, head, data, filename_out, import_args):
+        import_args = dict(import_args)
+        import_args['filename'] = os.path.abspath(filename_out)
+        import_args['header'] = head
+        import_args['data'] = data
+        self.file_to_write[filename_out] = import_args
+
+
+class ProductProcessorV9(Processor):
+    def __generate_attribute_lines(self, attributes_list, ATTRIBUTE_PREFIX):
+            self.attr_header = ['id', 'name']
+            self.attr_data = [[mapper.to_m2o(ATTRIBUTE_PREFIX, att), att] for att in attributes_list]
+
+    def process_attribute_mapping(self, mapping, line_mapping, attributes_list, ATTRIBUTE_PREFIX, path, import_args, id_gen_fun=None, null_values=['NULL']):
+        """
+            Mapping : name is mandatory vat_att(attribute_list)
+        """
+        def add_value_line(values_out, line):
+            for att in attributes_list:
+                value_name = line[mapping.keys().index('name')].get(att)
+                if value_name:
+                    line_value = [ele[att] if isinstance(ele, dict) else ele for ele in line]
+                    values_out.add(tuple(line_value))
+
+        id_gen_fun = id_gen_fun or (lambda template_id, values : mapper.to_m2o(template_id.split('.')[0] + '_LINE', template_id))
+
+        values_header = mapping.keys()
+        values_data = set()
+
+        self.__generate_attribute_lines(attributes_list, ATTRIBUTE_PREFIX)
+        att_data = AttributeLineDict(self.attr_data, id_gen_fun)
+        for line in self.data:
+            line = [s.strip() if s.strip() not in null_values else '' for s in line]
+            line_dict = dict(zip(self.header, line))
+            line_out = [mapping[k](line_dict) for k in mapping.keys()]
+
+            add_value_line(values_data, line_out)
+            values_lines = [line_mapping[k](line_dict) for k in line_mapping.keys()]
+            att_data.add_line(values_lines, line_mapping.keys())
+
+        line_header, line_data = att_data.generate_line()
+        self._add_data(self.attr_header, self.attr_data, path + 'product.attribute.csv', import_args)
+        self._add_data(values_header, values_data, path + 'product.attribute.value.csv', import_args)
+        import_args = dict(import_args, split='product_tmpl_id/id')
+        self._add_data(line_header, line_data, path + 'product.attribute.line.csv', import_args)

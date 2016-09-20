@@ -49,3 +49,38 @@ class ReprWrapper(object):
 
     def __repr__(self):
         return self._repr
+
+class AttributeLineDict:
+    def __init__(self, attribute_list_ids, id_gen_fun):
+        self.data = {}
+        self.att_list = attribute_list_ids
+        self.id_gen = id_gen_fun
+
+    def add_line(self, line, header):
+        """
+            line = ['product_tmpl_id/id' : id, 'attribute_id/id' : dict (att : id), 'value_ids/id' : dict(att: id)]
+        """
+        line_dict = dict(zip(header, line))
+        if self.data.get(line_dict['product_tmpl_id/id']):
+            for att_id, att in self.att_list:
+                if not line_dict['attribute_id/id'].get(att):
+                    continue
+                template_info = self.data[line_dict['product_tmpl_id/id']]
+                template_info.setdefault(att_id, [line_dict['value_ids/id'][att]]).append(line_dict['value_ids/id'][att])
+        else:
+            d = {}
+            for att_id, att in self.att_list:
+                if line_dict['attribute_id/id'].get(att):
+                    d[att_id] = [line_dict['value_ids/id'][att]]
+            self.data[line_dict['product_tmpl_id/id']] = d
+
+    def generate_line(self):
+        lines_header = ['id', 'product_tmpl_id/id', 'attribute_id/id', 'value_ids/id']
+        lines_out = []
+        for template_id, attributes in self.data.iteritems():
+            if not template_id:
+                continue
+            for attribute, values in attributes.iteritems():
+                line = [self.id_gen(template_id, attributes), template_id, attribute, ','.join(values)]
+                lines_out.append(line)
+        return lines_header, lines_out

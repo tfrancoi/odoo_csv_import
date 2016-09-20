@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
-#Import toolkit
 from lib import mapper, checker
 from lib.transform import Processor
-#from lib.etl_helper import read_file, process_mapping, process_write_file
-#from lib.data_checker import check_id_validity, check_length_validity
-#Import specific data needed for the import
 
 lang_map = {
     '' : '',

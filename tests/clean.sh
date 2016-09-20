@@ -6,4 +6,5 @@ rm -rf htmlcov
 rm 0_partner_generated.sh
 rm 1_partner_split.sh
 rm 2_contact_import.sh
+rm 3_product_import.sh
 rm error.log

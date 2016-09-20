@@ -44,11 +44,23 @@ def concat(separtor, *fields):
 def concat_field(separtor, *fields):
     return concat_mapper(separtor, *[val_label(f) for f in fields])
 
+def concat_field_value_m2m(separator, *args):
+    def concat_name_value_fun(line):
+        return ','.join([separator.join([f, line[f]]) for f in args if line[f]])
+    return concat_name_value_fun
+
 def map_val(field, mapping, default=''):
     return val(field, postprocess=lambda x : mapping.get(x, default))
 
 def num(field, default='0.0'):
     return val(field, default, postprocess=lambda x: x.replace(',', '.'))
+
+def m2o_map(PREFIX, mapper, default='', skip=False):
+    def m2o_fun(line):
+        if skip and not mapper(line):
+            raise SkippingException("Missing Value for %s" % mapper(line))
+        return to_m2o(PREFIX, mapper(line), default=default)
+    return m2o_fun
 
 def m2o(PREFIX, field, default='', skip=False):
     def m2o_fun(line):
@@ -65,6 +77,16 @@ def m2m(PREFIX, *args):
     def m2m_fun(line):
         return ','.join([to_m2m(PREFIX, line[f]) for f in args if line[f]])
     return m2m_fun
+
+def m2m_map(PREFIX, mapper):
+    """
+        @param args: list of string that should be included into the m2m field
+    """
+    #TODO: add default
+    def m2m_fun(line):
+        return to_m2m(PREFIX, mapper(line))
+    return m2m_fun
+
 
 
 
@@ -103,13 +125,16 @@ def val_att(att_list):
 
 def m2o_att(PREFIX, att_list):
     def m2o_att_fun(line):
-        return { att : to_m2o(PREFIX, line[att]) for att in att_list if line[att]}
+        return { att : to_m2o(PREFIX, '_'.join([att, line[att]])) for att in att_list if line[att]}
     return m2o_att_fun
 
 def m2o_att_name(PREFIX, att_list):
     def m2o_att_fun(line):
         return { att : to_m2o(PREFIX, att) for att in att_list if line[att]}
     return m2o_att_fun
+
+def m2m_attribute_value(PREFIX, *args):
+    return m2m_map(PREFIX, concat_field_value_m2m('_', *args))
 
 
 """

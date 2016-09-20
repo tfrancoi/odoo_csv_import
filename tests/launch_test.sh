@@ -16,4 +16,7 @@ echo "> Test mapping from file"
 python-coverage run -a test_from_file.py
 echo "> Import data with error"
 sh 2_contact_import.sh 2> error.log
+echo "> Import Product"
+python-coverage run -a test_product_v9.py
+sh 3_product_import.sh
 python-coverage html 

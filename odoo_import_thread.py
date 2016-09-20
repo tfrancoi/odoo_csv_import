@@ -148,7 +148,7 @@ def split_sort(split, data):
             split_index = header.index(split)
         except ValueError as ve:
             log("column %s not defined" % split)
-        raise ve
+            raise ve
         data = sorted(data, key=lambda d: d[split_index])
     return data, split_index
 
@@ -164,7 +164,9 @@ parser.add_argument('-s', '--sep', dest="seprator", default=";", help='Fail mode
 parser.add_argument('--split', dest='split', help='Keep batch same value of the field in the same batch')
 parser.add_argument('--ignore', dest='ignore', help='Keep batch same value of the field in the same batch')
 parser.add_argument('--check', dest='check', action='store_true', help='Check if record are imported after each batch. Can slow down the process')
+parser.add_argument('--context', dest='context', help='context that will be passed to the load function, need to be a valid python dict')
 #TODO args : encoding, context
+#{'update_many2many': True,'tracking_disable' : True, 'create_product_variant' : True, 'check_move_validity' : False}
 args = parser.parse_args()
 
 config_file = args.config
@@ -223,4 +225,4 @@ while  i < len(data):
 rpc_thread.wait()
 file_result.close()
 
-log_info("total time %s" % (time() - st))
+log_info("%s %s imported : total time %s second(s)" % (len(data), model, (time() - st)))
