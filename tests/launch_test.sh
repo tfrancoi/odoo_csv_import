@@ -19,4 +19,7 @@ sh 2_contact_import.sh 2> error.log
 echo "> Import Product"
 python-coverage run -a test_product_v9.py
 sh 3_product_import.sh
+echo "> Import Product v10"
+python-coverage run -a test_product_v10.py
+sh 4_product_import.sh
 python-coverage html 

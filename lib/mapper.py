@@ -6,6 +6,22 @@ from internal.exceptions import SkippingException
 import base64
 import os
 
+def str_to_mapper(field):
+    if isinstance(field, basestring):
+        return val(field)
+    return field
+
+def list_to_mapper(args):
+    return [val(f) if isinstance(f, basestring) else f for f in args]
+
+
+def field(col):
+    """ Return the col name if the col value for the given line is not empty
+    Use for product.attribute mapping 
+    """
+    def field_fun(line):
+        return col if line[col] else ''
+    return field_fun
 
 def const(value):
     def const_fun(line):
@@ -37,6 +53,20 @@ def concat_mapper(separtor, *mapper):
     def concat_fun(line):
         return separtor.join([m(line) for m in mapper if m(line)])
     return concat_fun
+
+def concat_mapper_all(separtor, *mapper):
+    """
+        Same as concat mapper, but if one value in the list of value to concat is empty, the all value return is 
+        an empty string
+        Use for product.attribute
+    """
+    def concat_fun(line):
+        values = [m(line) for m in mapper]
+        if not all(values):
+            return ''
+        return separtor.join(values)
+    return concat_fun
+
 
 def concat(separtor, *fields):
     return concat_mapper(separtor, *[val(f) for f in fields])
@@ -114,7 +144,7 @@ def binary(field, path_prefix, skip=False):
     return binary_val
 
 """
-    Specific to attribute mapper
+    Specific to attribute mapper for V9 product.attribute_import
 
 """
 
@@ -199,7 +229,8 @@ def m2m_id_list(PREFIX, *args, **kwargs):
     def split_m2m_id_fun(line):
         """ Return a list of unique element (xml_id, name)
         """
-        value = ','.join([to_m2m(PREFIX, line[f]) for f in args if line[f]] + const_values)
+        map_list = list_to_mapper(args)
+        value = ','.join([to_m2m(PREFIX, m(line)) for m in map_list if m(line)] + const_values)
         s = []
         for val in value.split(','):
             if val.strip():
@@ -214,9 +245,10 @@ def m2m_value_list(*args, **kwargs):
     """
     const_values = kwargs.get("const_values", [])
     def split_m2m_value_fun(line):
-        """ Return a list of unique element (xml_id, name)
+        """ Return a list of unique element value
         """
-        value = ','.join([line[f] for f in args if line[f]] + const_values)
+        map_list = list_to_mapper(args)
+        value = ','.join([m(line) for m in map_list if m(line)] + const_values)
         s = []
         for val in value.split(','):
             if val.strip():

@@ -141,7 +141,7 @@ class Processor(object):
                 for i, val in enumerate(values):
                     new_line[index_list[i]] = val
                 lines_out.add(tuple(new_line))
-
+            
         return head, lines_out
 
     def _add_data(self, head, data, filename_out, import_args):
@@ -153,7 +153,7 @@ class Processor(object):
 
 
 class ProductProcessorV9(Processor):
-    def __generate_attribute_lines(self, attributes_list, ATTRIBUTE_PREFIX):
+    def __generate_attribute_data(self, attributes_list, ATTRIBUTE_PREFIX):
             self.attr_header = ['id', 'name']
             self.attr_data = [[mapper.to_m2o(ATTRIBUTE_PREFIX, att), att] for att in attributes_list]
 
@@ -173,7 +173,7 @@ class ProductProcessorV9(Processor):
         values_header = mapping.keys()
         values_data = set()
 
-        self.__generate_attribute_lines(attributes_list, ATTRIBUTE_PREFIX)
+        self.__generate_attribute_data(attributes_list, ATTRIBUTE_PREFIX)
         att_data = AttributeLineDict(self.attr_data, id_gen_fun)
         for line in self.data:
             line = [s.strip() if s.strip() not in null_values else '' for s in line]
@@ -192,3 +192,9 @@ class ProductProcessorV9(Processor):
         self._add_data(values_header, values_data, path + 'product.attribute.value.csv', import_args)
         import_args = dict(import_args, groupby='product_tmpl_id/id')
         self._add_data(line_header, line_data, path + 'product.attribute.line.csv', import_args)
+
+class ProductProcessorV10(Processor):
+    def process_attribute_data(self, attributes_list, ATTRIBUTE_PREFIX, filename_out, import_args):
+        attr_header = ['id', 'name']
+        attr_data = [[mapper.to_m2o(ATTRIBUTE_PREFIX, att), att] for att in attributes_list]
+        self._add_data(attr_header, attr_data, filename_out, import_args)

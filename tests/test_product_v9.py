@@ -9,6 +9,8 @@ CATEGORY_PREFIX = "PRODUCT_CATEGORY"
 
 ATTRIBUTE_PREFIX = "PRODUCT_ATTRIBUTE"
 ATTRIBUTE_VALUE_PREFIX = "PRODUCT_ATTRIBUTE_VALUE"
+#Define the context that will be used
+context = {'create_product_variant' : True, 'tracking_disable' : True}
 
 #STEP 1 : read the needed file(s)
 processor = ProductProcessorV9('origin%sproduct.csv' % os.sep, delimiter=',')
@@ -37,7 +39,7 @@ template_map = {
  'default_code': mapper.val('ref'),
  'name': mapper.val('name'),
 }
-processor.process(template_map, 'data%sproduct.template.csv' % os.sep, { 'worker' : 4, 'batch_size' : 10}, 'set')
+processor.process(template_map, 'data%sproduct.template.csv' % os.sep, { 'worker' : 4, 'batch_size' : 10, 'context' : context}, 'set')
 
 #STEP 4: Attribute List
 attribute_list = ['Color', 'Gender', 'Size_H', 'Size_W']
@@ -52,7 +54,7 @@ line_mapping = {
    'attribute_id/id' : mapper.m2o_att_name(ATTRIBUTE_PREFIX, attribute_list),
    'value_ids/id' : mapper.m2o_att(ATTRIBUTE_VALUE_PREFIX, attribute_list) #TODO
 }
-processor.process_attribute_mapping(attribue_value_mapping, line_mapping, attribute_list, ATTRIBUTE_PREFIX, 'data/', { 'worker' : 3, 'batch_size' : 50, 'context' : {'tracking_disable' : True}})
+processor.process_attribute_mapping(attribue_value_mapping, line_mapping, attribute_list, ATTRIBUTE_PREFIX, 'data/', { 'worker' : 3, 'batch_size' : 50, 'context' : context})
 
 #STEP 5: Product Variant
 product_mapping = {
@@ -61,7 +63,7 @@ product_mapping = {
    'product_tmpl_id/id' : mapper.m2o(TEMPLATE_PREFIX, 'ref'),
    'attribute_value_ids/id' : mapper.m2m_attribute_value(ATTRIBUTE_VALUE_PREFIX, 'Color', 'Gender', 'Size_H', 'Size_W'),
 }
-processor.process(product_mapping, 'data%sproduct.product.csv' % os.sep, { 'worker' : 3, 'batch_size' : 50, 'groupby' : 'product_tmpl_id/id'}, 'set')
+processor.process(product_mapping, 'data%sproduct.product.csv' % os.sep, { 'worker' : 3, 'batch_size' : 50, 'groupby' : 'product_tmpl_id/id', 'context' : context}, 'set')
 
 #Step 6: Define output and import parameter
 processor.write_to_file("3_product_import.sh", python_exe='python-coverage run -a', path='../')

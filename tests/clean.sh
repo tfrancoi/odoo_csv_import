@@ -7,4 +7,6 @@ rm 0_partner_generated.sh
 rm 1_partner_split.sh
 rm 2_contact_import.sh
 rm 3_product_import.sh
+rm 4_product_import.sh
+rm .coverage
 rm error.log
