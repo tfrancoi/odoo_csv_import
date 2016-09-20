@@ -19,23 +19,24 @@ def write_csv(filename, header, data):
 
 def write_file(filename=None, header=None, data=None, fail=False, model="auto", 
                launchfile="import_auto.sh", worker=1, batch_size=10, init=False, 
-               conf_file=False, split='', sep=";", python_exe='python', path='./'):
+               conf_file=False, groupby='', sep=";", python_exe='python', path='./', context=None):
     def get_model():
         if model == "auto":
             return filename.split(os.sep)[-1][:-4]
         else:
             return model
 
+    context = '--context="%s"' % str(context) if context else ''
     conf_file = conf_file or "%s%s%s" % ('conf', os.sep, 'connection.conf')
     write_csv(filename, header, data)
 
     mode = init and 'w' or 'a'
     with open(launchfile, mode) as myfile:
-        myfile.write("%s %sodoo_import_thread.py -c %s --file=%s --model=%s --worker=%s --size=%s --split=%s --sep=\"%s\" \n" % 
-                    (python_exe, path, conf_file, filename, get_model(), worker, batch_size, split, sep))
+        myfile.write("%s %sodoo_import_thread.py -c %s --file=%s --model=%s --worker=%s --size=%s --groupby=%s --sep=\"%s\" %s\n" % 
+                    (python_exe, path, conf_file, filename, get_model(), worker, batch_size, groupby, sep, context))
         if fail:
-            myfile.write("%s %sodoo_import_thread.py -c %s --fail --file=%s --model=%s --worker=%s --size=%s --sep=\"%s\" \n" % 
-                         (python_exe, path, conf_file, filename, get_model(), worker, batch_size, sep))
+            myfile.write("%s %sodoo_import_thread.py -c %s --fail --file=%s --model=%s --sep=\"%s\" %s\n" % 
+                         (python_exe, path, conf_file, filename, get_model(), sep, context))
 
 
 ################################################

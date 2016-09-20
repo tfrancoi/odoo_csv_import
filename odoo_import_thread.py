@@ -27,12 +27,13 @@ def batch(iterable, size):
 
 class RPCThreadImport(RpcThread):
 
-    def __init__(self, max_connection, model, header, writer, batch_size=20):
+    def __init__(self, max_connection, model, header, writer, batch_size=20, context=None):
         super(RPCThreadImport, self).__init__(max_connection)
         self.model = model
         self.header = header
         self.batch_size = batch_size
         self.writer = writer
+        self.context = context
 
 
     def launch_batch(self, data_lines, batch_number, check=False):
@@ -70,8 +71,7 @@ class RPCThreadImport(RpcThread):
 
 
     def _send_rpc(self, lines, batch_number, sub_batch_number, check=False):
-        #TODO context in configuration context={'create_product_variant' : True}
-        res = self.model.load(self.header, lines, context={'update_many2many': True,'tracking_disable' : True, 'create_product_variant' : True, 'check_move_validity' : False})
+        res = self.model.load(self.header, lines, context=self.context)
         if res['messages']:
             for msg in res['messages']:
                 log_error('batch %s, %s' % (batch_number, sub_batch_number))
@@ -161,11 +161,11 @@ parser.add_argument('--size', dest='batch_size', default=10, help='Number of lin
 parser.add_argument('--skip', dest='skip', default=0, help='Skip until line [SKIP]')
 parser.add_argument('-f', '--fail',action='store_true', dest="fail", help='Fail mode')
 parser.add_argument('-s', '--sep', dest="seprator", default=";", help='Fail mode')
-parser.add_argument('--split', dest='split', help='Keep batch same value of the field in the same batch')
+parser.add_argument('--groupby', dest='split', help='Group data per batch with the same value for the given column in order to avoid concurrent update error')
 parser.add_argument('--ignore', dest='ignore', help='Keep batch same value of the field in the same batch')
 parser.add_argument('--check', dest='check', action='store_true', help='Check if record are imported after each batch. Can slow down the process')
-parser.add_argument('--context', dest='context', help='context that will be passed to the load function, need to be a valid python dict')
-#TODO args : encoding, context
+parser.add_argument('--context', dest='context', help='context that will be passed to the load function, need to be a valid python dict', default="{'tracking_disable' : True}")
+#TODO args : encoding
 #{'update_many2many': True,'tracking_disable' : True, 'create_product_variant' : True, 'check_move_validity' : False}
 args = parser.parse_args()
 
@@ -179,6 +179,8 @@ separator = args.seprator
 split = False
 check = args.check
 encoding='utf-8-sig'
+context= eval(args.context)
+
 if args.split:
     split = args.split
     
@@ -202,7 +204,7 @@ file_result = open(fail_file, "wb")
 writer = UnicodeWriter(file_result, delimiter=separator, encoding=encoding, quoting=csv.QUOTE_ALL)
 writer.writerow(filter_header_ignore(ignore, header))
 file_result.flush()
-rpc_thread = RPCThreadImport(int(max_connection), object_registry, filter_header_ignore(ignore, header), writer, batch_size)
+rpc_thread = RPCThreadImport(int(max_connection), object_registry, filter_header_ignore(ignore, header), writer, batch_size, context)
 st = time()
 
 

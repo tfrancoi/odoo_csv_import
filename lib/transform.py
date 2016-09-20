@@ -185,7 +185,10 @@ class ProductProcessorV9(Processor):
             att_data.add_line(values_lines, line_mapping.keys())
 
         line_header, line_data = att_data.generate_line()
+        context = import_args.get('context', {})
+        context['create_product_variant'] = True
+        import_args['context'] = context
         self._add_data(self.attr_header, self.attr_data, path + 'product.attribute.csv', import_args)
         self._add_data(values_header, values_data, path + 'product.attribute.value.csv', import_args)
-        import_args = dict(import_args, split='product_tmpl_id/id')
+        import_args = dict(import_args, groupby='product_tmpl_id/id')
         self._add_data(line_header, line_data, path + 'product.attribute.line.csv', import_args)

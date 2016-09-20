@@ -52,7 +52,7 @@ line_mapping = {
    'attribute_id/id' : mapper.m2o_att_name(ATTRIBUTE_PREFIX, attribute_list),
    'value_ids/id' : mapper.m2o_att(ATTRIBUTE_VALUE_PREFIX, attribute_list) #TODO
 }
-processor.process_attribute_mapping(attribue_value_mapping, line_mapping, attribute_list, ATTRIBUTE_PREFIX, 'data/', { 'worker' : 3, 'batch_size' : 50})
+processor.process_attribute_mapping(attribue_value_mapping, line_mapping, attribute_list, ATTRIBUTE_PREFIX, 'data/', { 'worker' : 3, 'batch_size' : 50, 'context' : {'tracking_disable' : True}})
 
 #STEP 5: Product Variant
 product_mapping = {
@@ -61,7 +61,7 @@ product_mapping = {
    'product_tmpl_id/id' : mapper.m2o(TEMPLATE_PREFIX, 'ref'),
    'attribute_value_ids/id' : mapper.m2m_attribute_value(ATTRIBUTE_VALUE_PREFIX, 'Color', 'Gender', 'Size_H', 'Size_W'),
 }
-processor.process(product_mapping, 'data%sproduct.product.csv' % os.sep, { 'worker' : 3, 'batch_size' : 50, 'split' : 'product_tmpl_id/id'}, 'set')
+processor.process(product_mapping, 'data%sproduct.product.csv' % os.sep, { 'worker' : 3, 'batch_size' : 50, 'groupby' : 'product_tmpl_id/id'}, 'set')
 
 #Step 6: Define output and import parameter
 processor.write_to_file("3_product_import.sh", python_exe='python-coverage run -a', path='../')
