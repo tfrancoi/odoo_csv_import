@@ -173,7 +173,7 @@ parser.add_argument('--model', dest='model', help='Model to import', required = 
 parser.add_argument('--worker', dest='worker', default=1, help='Number of simultaneous connection')
 parser.add_argument('--size', dest='batch_size', default=10, help='Number of line to import per connection')
 parser.add_argument('--skip', dest='skip', default=0, help='Skip until line [SKIP]')
-parser.add_argument('-f', '--fail',action='store_true', dest="fail", help='Fail mode')
+parser.add_argument('--fail', action='store_true', dest="fail", help='Fail mode')
 parser.add_argument('-s', '--sep', dest="seprator", default=";", help='CSV separator')
 parser.add_argument('--groupby', dest='split', help='Group data per batch with the same value for the given column in order to avoid concurrent update error')
 parser.add_argument('--ignore', dest='ignore', help='list of column separate by comma. Those column will be remove from the import request')

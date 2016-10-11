@@ -18,7 +18,12 @@ class RpcThread(object):
         def wrapper(args, kwarg):
             kwarg = kwarg or {}
             self.semaphore.acquire()
-            fun(*args, **kwarg)
+            try:
+                fun(*args, **kwarg)
+            except:
+                self.semaphore.release()
+                self.max_thread_semaphore.release()
+                raise
             self.semaphore.release()
             self.max_thread_semaphore.release()
         self.max_thread_semaphore.acquire()
