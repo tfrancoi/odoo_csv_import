@@ -17,7 +17,7 @@ def list_to_mapper(args):
 
 def field(col):
     """ Return the col name if the col value for the given line is not empty
-    Use for product.attribute mapping 
+    Use for product.attribute mapping
     """
     def field_fun(line):
         return col if line[col] else ''
@@ -56,7 +56,7 @@ def concat_mapper(separtor, *mapper):
 
 def concat_mapper_all(separtor, *mapper):
     """
-        Same as concat mapper, but if one value in the list of value to concat is empty, the all value return is 
+        Same as concat mapper, but if one value in the list of value to concat is empty, the all value return is
         an empty string
         Use for product.attribute
     """
@@ -267,7 +267,7 @@ def split_line_number(line_nb):
     """
         Return a function that can we used by split method from Processor class,
         this function will split the data every x lines where x is given by the param line_nb
-        :param line_nb: 
+        :param line_nb:
     """
     def split(line, i):
         return divmod(i, line_nb)[0]
@@ -279,7 +279,7 @@ def split_file_number(file_nb):
         Return a function that can we used by split method from Processor class,
         this function will split the data into x file where x is given by the param file_nb
         Order of data is not kept
-        :param line_nb: 
+        :param line_nb:
     """
     def split(line, i):
         return divmod(i, file_nb)[1]

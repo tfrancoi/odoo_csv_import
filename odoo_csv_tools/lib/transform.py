@@ -4,14 +4,16 @@ Created on 10 sept. 2016
 
 @author: mythrys
 '''
-from collections import OrderedDict
-from lib.internal.csv_reader import UnicodeReader
-from lib import mapper
-from internal.tools import ReprWrapper, AttributeLineDict
-from internal.file import write_file
-from internal.exceptions import SkippingException
-
 import os
+
+from collections import OrderedDict
+
+from internal.csv_reader import UnicodeReader
+from internal.tools import ReprWrapper, AttributeLineDict
+from odoo_csv_tools.lib.internal.io import write_file
+from internal.exceptions import SkippingException
+import mapper
+
 
 class Processor(object):
     def __init__(self, filename=None, delimiter=";", encoding='utf-8-sig', header=None, data=None):
@@ -47,10 +49,10 @@ class Processor(object):
         """Will generate a mapping with 'key' : mapper.val('key') for each key
 
         you can print using pprint to print the equivalent python of the mapping to use it in your file
-        
-        :return: a dict where the key is a str and the value a mapper.val function, 
+
+        :return: a dict where the key is a str and the value a mapper.val function,
                  the key and the field pass to the mapper are identical
-        
+
                 {
                     'id' : mapper.val('id'),
                     .....
@@ -62,12 +64,13 @@ class Processor(object):
             mapping[str(column)] = map_val_rep
         return mapping
 
-    def process(self, mapping, filename_out, import_args, t='list', null_values=['NULL'], verbose=True, m2m=False):
+    def process(self, mapping, filename_out, import_args, t='list', null_values=['NULL', False], verbose=True, m2m=False):
         if m2m:
             head, data = self.__process_mapping_m2m(mapping, null_values=null_values, verbose=verbose)
         else:
             head, data = self.__process_mapping(mapping, t=t, null_values=null_values, verbose=verbose)
         self._add_data(head, data, filename_out, import_args)
+        return head, data
 
     def write_to_file(self, script_filename, fail=True, append=False, python_exe='python', path='./'):
         init = not append
@@ -106,7 +109,7 @@ class Processor(object):
         """
         lines_out = [] if t == 'list' else set()
         for i, line in enumerate(self.data):
-            line = [s.strip() if s.strip() not in null_values else '' for s in line]
+            line = [s.strip() if s and s.strip() not in null_values else '' for s in line]
             line_dict = dict(zip(self.header, line))
             try:
                 line_out = [mapping[k](line_dict) for k in mapping.keys()]
@@ -119,12 +122,12 @@ class Processor(object):
                 lines_out.append(line_out)
             else:
                 lines_out.add(tuple(line_out))
-    
+
         return mapping.keys(), lines_out
 
     def __process_mapping_m2m(self, mapping, null_values, verbose):
         """
-            
+
         """
         head, data = self.__process_mapping(mapping, 'list', null_values, verbose)
         lines_out = set()
@@ -141,12 +144,12 @@ class Processor(object):
                 for i, val in enumerate(values):
                     new_line[index_list[i]] = val
                 lines_out.add(tuple(new_line))
-            
+
         return head, lines_out
 
     def _add_data(self, head, data, filename_out, import_args):
         import_args = dict(import_args)
-        import_args['filename'] = os.path.abspath(filename_out)
+        import_args['filename'] = os.path.abspath(filename_out) if filename_out else False
         import_args['header'] = head
         import_args['data'] = data
         self.file_to_write[filename_out] = import_args

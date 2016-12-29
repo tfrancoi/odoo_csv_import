@@ -3,7 +3,7 @@
 
 rm -rf data
 mkdir data
-export PYTHONPATH=..
+export PYTHONPATH=../
 echo "> Erase"
 python-coverage erase
 echo "> Generate data for import"
@@ -22,4 +22,5 @@ sh 3_product_import.sh
 echo "> Import Product v10"
 python-coverage run -a test_product_v10.py
 sh 4_product_import.sh
+sh 5_partner_export.sh
 python-coverage html 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
-from lib import mapper, checker
-from lib.transform import Processor
+from odoo_csv_tools.lib import mapper, checker
+from odoo_csv_tools.lib.transform import Processor
 
 lang_map = {
     '' : '',
@@ -23,7 +23,7 @@ PARTNER_PREFIX = "TEST_PARTNER"
 
 #STEP 1 : read the needed file(s)
 processor = Processor('origin%scontact.csv' % os.sep)
-#Print o2o mapping 
+#Print o2o mapping
 import pprint
 pprint.pprint(processor.get_o2o_mapping())
 

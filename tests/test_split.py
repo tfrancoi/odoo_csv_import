@@ -3,8 +3,8 @@ Created on 14 sept. 2016
 
 @author: mythrys
 '''
-from lib import mapper
-from lib import transform
+from odoo_csv_tools.lib import mapper
+from odoo_csv_tools.lib import transform
 import random
 PARTNER_PREFIX = 'partner_generated'
 TAG_PREFIX = 'partner_tag'

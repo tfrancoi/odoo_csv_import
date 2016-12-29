@@ -6,7 +6,7 @@ Created on 10 sept. 2016
 import csv
 import os
 
-from lib.internal.csv_reader import UnicodeWriter, UnicodeReader
+from csv_reader import UnicodeWriter, UnicodeReader
 
 
 def write_csv(filename, header, data):
@@ -17,8 +17,8 @@ def write_csv(filename, header, data):
         c.writerow(d)
     file_result.close()
 
-def write_file(filename=None, header=None, data=None, fail=False, model="auto", 
-               launchfile="import_auto.sh", worker=1, batch_size=10, init=False, 
+def write_file(filename=None, header=None, data=None, fail=False, model="auto",
+               launchfile="import_auto.sh", worker=1, batch_size=10, init=False,
                conf_file=False, groupby='', sep=";", python_exe='python', path='./', context=None):
     def get_model():
         if model == "auto":
@@ -32,10 +32,10 @@ def write_file(filename=None, header=None, data=None, fail=False, model="auto",
 
     mode = init and 'w' or 'a'
     with open(launchfile, mode) as myfile:
-        myfile.write("%s %sodoo_import_thread.py -c %s --file=%s --model=%s --worker=%s --size=%s --groupby=%s --sep=\"%s\" %s\n" % 
+        myfile.write("%s %sodoo_import_thread.py -c %s --file=%s --model=%s --worker=%s --size=%s --groupby=%s --sep=\"%s\" %s\n" %
                     (python_exe, path, conf_file, filename, get_model(), worker, batch_size, groupby, sep, context))
         if fail:
-            myfile.write("%s %sodoo_import_thread.py -c %s --fail --file=%s --model=%s --sep=\"%s\" %s\n" % 
+            myfile.write("%s %sodoo_import_thread.py -c %s --fail --file=%s --model=%s --sep=\"%s\" %s\n" %
                          (python_exe, path, conf_file, filename, get_model(), sep, context))
 
 
@@ -45,7 +45,7 @@ def write_file(filename=None, header=None, data=None, fail=False, model="auto",
 
 def write_file_dict(filename, header, data):
     data_rows = []
-    for k, val in data.iteritems():
+    for _, val in data.iteritems():
         r = [val.get(h, '') for h in header]
         data_rows.append(r)
     write_csv(filename, header, data_rows)
@@ -81,3 +81,14 @@ def merge_header(*args):
         if h and h not in header:
             header.append(h)
     return header
+
+class ListWriter(object):
+    def __init__(self):
+        self.data = []
+        self.header = []
+
+    def writerow(self, header):
+        self.header = list(header)
+
+    def writerows(self, line):
+        self.data.extend(list(line))

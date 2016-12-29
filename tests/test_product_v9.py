@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
-from lib import mapper
-from lib.transform import ProductProcessorV9
+from odoo_csv_tools.lib import mapper
+from odoo_csv_tools.lib.transform import ProductProcessorV9
 
 TEMPLATE_PREFIX = "PRODUCT_TEMPLATE"
 PRODUCT_PREFIX = "PRODUCT_PRODUCT"
