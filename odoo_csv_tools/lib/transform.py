@@ -16,7 +16,7 @@ import mapper
 
 
 class Processor(object):
-    def __init__(self, filename=None, delimiter=";", encoding='utf-8-sig', header=None, data=None):
+    def __init__(self, filename=None, delimiter=";", encoding='utf-8-sig', header=None, data=None, preprocess=lambda header, data: (header, data)):
         self.file_to_write = OrderedDict()
         if header and data:
             self.header = header
@@ -25,6 +25,7 @@ class Processor(object):
             self.header, self.data = self.__read_file(filename, delimiter, encoding)
         else:
             raise Exception("No Filename nor header and data provided")
+        self.header, self.data = preprocess(self.header, self.data)
 
     def check(self, check_fun, message=None):
         res = check_fun(self.header, self.data)
