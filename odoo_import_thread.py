@@ -28,7 +28,7 @@ if __name__ == '__main__':
     parser.add_argument('--size', dest='batch_size', default=10, help='Number of line to import per connection')
     parser.add_argument('--skip', dest='skip', default=0, help='Skip until line [SKIP]')
     parser.add_argument('--fail', action='store_true', dest="fail", help='Fail mode')
-    parser.add_argument('-s', '--sep', dest="seprator", default=";", help='CSV separator')
+    parser.add_argument('-s', '--sep', dest="separator", default=";", help='CSV separator')
     parser.add_argument('--groupby', dest='split', help='Group data per batch with the same value for the given column in order to avoid concurrent update error')
     parser.add_argument('--ignore', dest='ignore', help='list of column separate by comma. Those column will be remove from the import request')
     parser.add_argument('--check', dest='check', action='store_true', help='Check if record are imported after each batch.')
@@ -56,7 +56,6 @@ if __name__ == '__main__':
         split = False
 
     import_threaded.import_data(args.config, args.model, file_csv=file_csv, context=context,
-                                fail_file=fail_file, encoding=encoding, separator=args.seprator,
+                                fail_file=fail_file, encoding=encoding, separator=args.separator,
                                 ignore=ignore, split=args.split, check=args.check,
                                 max_connection=max_connection, batch_size=batch_size, skip=int(args.skip))
-

@@ -28,7 +28,7 @@ if __name__ == '__main__':
     parser.add_argument('--domain', dest='domain', help='Filter', default="[]")
     parser.add_argument('--worker', dest='worker', default=1, help='Number of simultaneous connection')
     parser.add_argument('--size', dest='batch_size', default=10, help='Number of line to import per connection')
-    parser.add_argument('-s', '--sep', dest="seprator", default=";", help='CSV separator')
+    parser.add_argument('-s', '--sep', dest="separator", default=";", help='CSV separator')
     parser.add_argument('--context', dest='context', help='context that will be passed to the load function, need to be a valid python dict', default="{'tracking_disable' : True}")
     #TODO args : encoding
     #{'update_many2many': True,'tracking_disable' : True, 'create_product_variant' : True, 'check_move_validity' : False}
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     batch_size = int(args.batch_size)
     model = args.model
     max_connection = int(args.worker)
-    separator = args.seprator
+    separator = args.separator
     encoding='utf-8-sig'
     context= eval(args.context)
     domain = eval(args.domain)
