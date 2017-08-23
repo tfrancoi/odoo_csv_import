@@ -29,7 +29,7 @@ from lib.internal.rpc_thread import RpcThread
 from lib.internal.csv_reader import UnicodeWriter
 from odoo_csv_tools.lib.internal.io import ListWriter
 
-csv.field_size_limit(sys.maxsize)
+csv.field_size_limit(sys.maxint)
 
 
 def batch(iterable, size):
