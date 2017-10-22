@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 '''
 Copyright (C) Thibault Francois
 
@@ -38,6 +38,7 @@ def batch(iterable, size):
         batchiter = islice(sourceiter, size)
         yield chain([batchiter.next()], batchiter)
 
+
 class RPCThreadImport(RpcThread):
 
     def __init__(self, max_connection, model, header, writer, batch_size=20, context=None):
@@ -48,7 +49,6 @@ class RPCThreadImport(RpcThread):
         self.writer = writer
         self.context = context
 
-
     def launch_batch(self, data_lines, batch_number, check=False):
         def launch_batch_fun(lines, batch_number, check=False):
             i = 0
@@ -57,7 +57,7 @@ class RPCThreadImport(RpcThread):
                 self.sub_batch_run(lines_batch, batch_number, i, len(lines), check=check)
                 i += 1
 
-        self.spawn_thread(launch_batch_fun, [data_lines, batch_number], {'check' : check})
+        self.spawn_thread(launch_batch_fun, [data_lines, batch_number], {'check': check})
 
     def sub_batch_run(self, lines, batch_number, sub_batch_number, total_line_nb, check=False):
         success = False
@@ -73,7 +73,7 @@ class RPCThreadImport(RpcThread):
         except Exception as e:
             log_info("Unknown Problem")
             exc_type, exc_value, _ = sys.exc_info()
-            #traceback.print_tb(exc_traceback, file=sys.stdout)
+            # traceback.print_tb(exc_traceback, file=sys.stdout)
             log_error(exc_type)
             log_error(exc_value)
 
@@ -81,7 +81,6 @@ class RPCThreadImport(RpcThread):
             self.writer.writerows(lines)
 
         log_info("time for batch %s - %s of %s : %s" % (batch_number, (sub_batch_number + 1) * self.batch_size, total_line_nb, time() - st))
-
 
     def _send_rpc(self, lines, batch_number, sub_batch_number, check=False):
         res = self.model.load(self.header, lines, context=self.context)
@@ -97,15 +96,17 @@ class RPCThreadImport(RpcThread):
 
         return True
 
+
 def do_not_split(split, previous_split_value, split_index, line):
-    if not split: # If no split no need to continue
+    if not split:  # If no split no need to continue
         return False
 
     split_value = line[split_index]
-    if split_value != previous_split_value: #Different Value no need to not split
+    if split_value != previous_split_value:  # Different Value no need to not split
         return False
 
     return True
+
 
 def filter_line_ignore(ignore, header, line):
     new_line = []
@@ -114,12 +115,14 @@ def filter_line_ignore(ignore, header, line):
             new_line.append(val)
     return new_line
 
+
 def filter_header_ignore(ignore, header):
     new_header = []
     for val in header:
         if val not in ignore:
             new_header.append(val)
     return new_header
+
 
 def read_file(file_to_read, delimiter=';', encoding='utf-8-sig', skip=0):
     def get_real_header(header):
@@ -154,6 +157,7 @@ def read_file(file_to_read, delimiter=';', encoding='utf-8-sig', skip=0):
     data = [l for l in reader]
     return header, data
 
+
 def split_sort(split, header, data):
     split_index = 0
     if split:
@@ -164,6 +168,7 @@ def split_sort(split, header, data):
             raise ve
         data = sorted(data, key=lambda d: d[split_index])
     return data, split_index
+
 
 def import_data(config_file, model, header=None, data=None, file_csv=None, context=None, fail_file=False, encoding='utf-8-sig', separator=";", ignore=False, split=False, check=True, max_connection=1, batch_size=10, skip=0):
     """
@@ -194,12 +199,11 @@ def import_data(config_file, model, header=None, data=None, file_csv=None, conte
     rpc_thread = RPCThreadImport(int(max_connection), object_registry, filter_header_ignore(ignore, header), writer, batch_size, context)
     st = time()
 
-
     data, split_index = split_sort(split, header, data)
 
     i = 0
     previous_split_value = False
-    while  i < len(data):
+    while i < len(data):
         lines = []
         j = 0
         while i < len(data) and (j < batch_size or do_not_split(split, previous_split_value, split_index, data[i])):
@@ -220,4 +224,3 @@ def import_data(config_file, model, header=None, data=None, file_csv=None, conte
         return False, False
     else:
         return writer.header, writer.data
-

@@ -1,3 +1,3 @@
-import lib
-import export_threaded
-import import_threaded
+import lib  # noqa
+import export_threaded  # noqa
+import import_threaded  # noqa

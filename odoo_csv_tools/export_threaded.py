@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 '''
 Copyright (C) Thibault Francois
 
@@ -38,6 +38,7 @@ def batch(iterable, size):
         batchiter = islice(sourceiter, size)
         yield chain([batchiter.next()], batchiter)
 
+
 class RPCThreadExport(RpcThread):
 
     def __init__(self, max_connection, model, header, writer, batch_size=20, context=None):
@@ -48,7 +49,6 @@ class RPCThreadExport(RpcThread):
         self.writer = writer
         self.context = context
         self.result = {}
-
 
     def launch_batch(self, data_ids, batch_number):
         def launch_batch_fun(data_ids, batch_number, check=False):
@@ -61,7 +61,7 @@ class RPCThreadExport(RpcThread):
             except Exception as e:
                 log_info("Unknown Problem")
                 exc_type, exc_value, _ = sys.exc_info()
-                #traceback.print_tb(exc_traceback, file=sys.stdout)
+                # traceback.print_tb(exc_traceback, file=sys.stdout)
                 log_error(exc_type)
                 log_error(exc_value)
             log_info("time for batch %s: %s" % (batch_number, time() - st))
@@ -72,7 +72,6 @@ class RPCThreadExport(RpcThread):
         file_writer.writerow(self.header)
         for key in self.result:
             file_writer.writerows(self.result[key])
-
 
 
 def export_data(config_file, model, domain, header, context=None, output=None, max_connection=1, batch_size=100, separator=';', encoding='utf-8-sig'):
@@ -90,7 +89,7 @@ def export_data(config_file, model, domain, header, context=None, output=None, m
 
     ids = object_registry.search(domain, context=context)
     i = 0
-    for b in batch(ids,batch_size):
+    for b in batch(ids, batch_size):
         batch_ids = [l for l in b]
         rpc_thread.launch_batch(batch_ids, i)
         i += 1
@@ -104,6 +103,3 @@ def export_data(config_file, model, domain, header, context=None, output=None, m
         return False, False
     else:
         return writer.header, writer.data
-
-
-

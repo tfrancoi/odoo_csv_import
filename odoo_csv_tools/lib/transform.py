@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 '''
 Created on 10 sept. 2016
 
@@ -61,7 +61,7 @@ class Processor(object):
         """
         mapping = {}
         for column in self.header:
-            map_val_rep = ReprWrapper("mapper.val('%s')" %column, mapper.val(column))
+            map_val_rep = ReprWrapper("mapper.val('%s')" % column, mapper.val(column))
             mapping[str(column)] = map_val_rep
         return mapping
 
@@ -78,12 +78,12 @@ class Processor(object):
         for _, info in self.file_to_write.items():
             info_copy = dict(info)
             info_copy.update({
-                'model' : info.get('model', 'auto'),
-                'init' : init,
-                'launchfile' : script_filename,
-                'fail' : fail,
-                'python_exe' : python_exe,
-                'path' : path,
+                'model': info.get('model', 'auto'),
+                'init': init,
+                'launchfile': script_filename,
+                'fail': fail,
+                'python_exe': python_exe,
+                'path': path,
             })
 
             write_file(**info_copy)
@@ -158,8 +158,8 @@ class Processor(object):
 
 class ProductProcessorV9(Processor):
     def __generate_attribute_data(self, attributes_list, ATTRIBUTE_PREFIX):
-            self.attr_header = ['id', 'name']
-            self.attr_data = [[mapper.to_m2o(ATTRIBUTE_PREFIX, att), att] for att in attributes_list]
+        self.attr_header = ['id', 'name']
+        self.attr_data = [[mapper.to_m2o(ATTRIBUTE_PREFIX, att), att] for att in attributes_list]
 
     def process_attribute_mapping(self, mapping, line_mapping, attributes_list, ATTRIBUTE_PREFIX, path, import_args, id_gen_fun=None, null_values=['NULL']):
         """
@@ -172,7 +172,7 @@ class ProductProcessorV9(Processor):
                     line_value = [ele[att] if isinstance(ele, dict) else ele for ele in line]
                     values_out.add(tuple(line_value))
 
-        id_gen_fun = id_gen_fun or (lambda template_id, values : mapper.to_m2o(template_id.split('.')[0] + '_LINE', template_id))
+        id_gen_fun = id_gen_fun or (lambda template_id, values: mapper.to_m2o(template_id.split('.')[0] + '_LINE', template_id))
 
         values_header = mapping.keys()
         values_data = set()
@@ -196,6 +196,7 @@ class ProductProcessorV9(Processor):
         self._add_data(values_header, values_data, path + 'product.attribute.value.csv', import_args)
         import_args = dict(import_args, groupby='product_tmpl_id/id')
         self._add_data(line_header, line_data, path + 'product.attribute.line.csv', import_args)
+
 
 class ProductProcessorV10(Processor):
     def process_attribute_data(self, attributes_list, ATTRIBUTE_PREFIX, filename_out, import_args):
