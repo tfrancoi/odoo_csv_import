@@ -7,10 +7,10 @@ Created on 10 sept. 2016
 import os
 
 from collections import OrderedDict
+from internal import io
 
 from internal.csv_reader import UnicodeReader
 from internal.tools import ReprWrapper, AttributeLineDict
-from odoo_csv_tools.lib.internal.io import write_file
 from internal.exceptions import SkippingException
 import mapper
 
@@ -73,21 +73,9 @@ class Processor(object):
         self._add_data(head, data, filename_out, import_args)
         return head, data
 
-    def write_to_file(self, script_filename, fail=True, append=False, python_exe='python', path='./'):
-        init = not append
+    def write_output(self):
         for _, info in self.file_to_write.items():
-            info_copy = dict(info)
-            info_copy.update({
-                'model': info.get('model', 'auto'),
-                'init': init,
-                'launchfile': script_filename,
-                'fail': fail,
-                'python_exe': python_exe,
-                'path': path,
-            })
-
-            write_file(**info_copy)
-            init = False
+            io.write_csv(info['filename'], info['header'], info['data'])
 
     def get_processed_data(self, filename_out):
         return self.file_to_write[filename_out]

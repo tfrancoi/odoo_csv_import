@@ -3,6 +3,8 @@ Created on 14 sept. 2016
 
 @author: mythrys
 '''
+
+from odoo_csv_tools.launch_constructor import launchfile_write
 from odoo_csv_tools.lib import mapper
 from odoo_csv_tools.lib import transform
 import random
@@ -48,11 +50,13 @@ processor.process(tag_mapping, tag_output, {
     'batch_size': 10,  # OPTIONAL
     'model': 'res.partner.category',
 }, m2m=True)
-processor.write_to_file(script, path='../')
+processor.write_output()
+launchfile_write(processor.file_to_write, script, path='../')
 for index, p in p_dict.items():
     p.process(mapping, '%s.%s' % (output, index), {
         'worker': 4,  # OPTIONAL
         'batch_size': 100,  # OPTIONAL
         'model': 'res.partner',
     })
-    p.write_to_file(script, path='../', append=True)
+    p.write_output()
+    launchfile_write(p.file_to_write, script, path='../', append=True)

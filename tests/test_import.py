@@ -3,6 +3,8 @@ Created on 14 sept. 2016
 
 @author: mythrys
 '''
+
+from odoo_csv_tools.launch_constructor import launchfile_write
 from odoo_csv_tools.lib import mapper
 from odoo_csv_tools.lib import transform
 import random
@@ -51,4 +53,5 @@ processor.process(mapping, output, {
     'batch_size': 100,
     'model': 'res.partner',
 })
-processor.write_to_file(script, python_exe='python-coverage run -a', path='../')
+processor.write_output()
+launchfile_write(processor.file_to_write, script, python_exe='python-coverage run -a', path='../')

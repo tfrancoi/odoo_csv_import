@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
+
+from odoo_csv_tools.launch_constructor import launchfile_write
 from odoo_csv_tools.lib import mapper
 from odoo_csv_tools.lib.transform import ProductProcessorV10
 
@@ -85,4 +87,5 @@ processor.process(product_mapping, 'data%sproduct.product.csv' % os.sep, {'worke
                                                                           'context': context}, 'set')
 
 # #Step 8: Define output and import parameter
-processor.write_to_file("4_product_import.sh", python_exe='python-coverage run -a', path='../')
+processor.write_output()
+launchfile_write(processor.file_to_write, "4_product_import.sh", python_exe='python-coverage run -a', path='../')

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
+
+from odoo_csv_tools.launch_constructor import launchfile_write
 from odoo_csv_tools.lib import mapper, checker
 from odoo_csv_tools.lib.transform import Processor
 
@@ -54,4 +56,5 @@ processor.check(checker.line_number_checker(21))
 processor.process(mapping, 'data%sres.partner.csv' % os.sep, {'worker': 2, 'batch_size': 5}, 'set')
 
 # Step 5: Define output and import parameter
-processor.write_to_file("2_contact_import.sh", python_exe='python-coverage run -a', path='../')
+processor.write_output()
+launchfile_write(processor.file_to_write, "2_contact_import.sh", python_exe='python-coverage run -a', path='../')
