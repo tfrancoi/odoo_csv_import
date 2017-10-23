@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     file_csv = args.filename
     batch_size = int(args.batch_size)
-    fail_file = file_csv + ".fail"
+    file_fail = file_csv + ".fail"
     max_connection = int(args.worker)
     split = False
     encoding = 'utf-8-sig'
@@ -49,13 +49,24 @@ if __name__ == '__main__':
         ignore = args.ignore.split(',')
 
     if args.fail:
-        file_csv = fail_file
-        fail_file = fail_file + ".bis"
+        file_csv = file_fail
+        file_fail = file_fail + ".bis"
         batch_size = 1
         max_connection = 1
         split = False
 
-    import_threaded.import_data(args.config, args.model, file_csv=file_csv, context=context,
-                                fail_file=fail_file, encoding=encoding, separator=args.separator,
-                                ignore=ignore, split=args.split, check=args.check,
-                                max_connection=max_connection, batch_size=batch_size, skip=int(args.skip))
+    fobj_read = open(file_csv, 'r')
+    fobj_fail = open(file_fail, "wb")
+
+    import_threaded.import_data(args.config, args.model,
+                                fobj_read=fobj_read,
+                                fobj_fail=fobj_fail,
+                                context=context,
+                                encoding=encoding,
+                                separator=args.separator,
+                                ignore=ignore,
+                                split=args.split,
+                                check=args.check,
+                                max_connection=max_connection,
+                                batch_size=batch_size,
+                                skip=int(args.skip))

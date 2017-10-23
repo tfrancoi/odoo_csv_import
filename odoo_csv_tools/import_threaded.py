@@ -124,7 +124,7 @@ def filter_header_ignore(ignore, header):
     return new_header
 
 
-def read_file(file_to_read, delimiter=';', encoding='utf-8-sig', skip=0):
+def read_file(fobj_read, delimiter=';', encoding='utf-8-sig', skip=0):
     def get_real_header(header):
         """ Get real header cut at the first empty column """
         new_header = []
@@ -147,9 +147,8 @@ def read_file(file_to_read, delimiter=';', encoding='utf-8-sig', skip=0):
         for _ in xrange(1, skip):
             reader.next()
 
-    log('open %s' % file_to_read)
-    file_ref = open(file_to_read, 'r')
-    reader = UnicodeReader(file_ref, delimiter=delimiter, encoding='utf-8-sig')
+    log('open %s' % fobj_read.name)
+    reader = UnicodeReader(fobj_read, delimiter=delimiter, encoding='utf-8-sig')
     header = reader.next()
     header = get_real_header(header)
     check_id_column(header)
@@ -170,32 +169,31 @@ def split_sort(split, header, data):
     return data, split_index
 
 
-def import_data(config_file, model, header=None, data=None, file_csv=None, context=None, fail_file=False, encoding='utf-8-sig', separator=";", ignore=False, split=False, check=True, max_connection=1, batch_size=10, skip=0):
+def import_data(config_file, model, header=None, data=None, fobj_read=None, context=None, fobj_fail=False, encoding='utf-8-sig', separator=";", ignore=False, split=False, check=True, max_connection=1, batch_size=10, skip=0):
     """
-        header and data mandatory in file_csv is not provided
+        header and data mandatory in fobj_read is not provided
 
     """
     ignore = ignore or []
     context = context or {}
 
-    if file_csv:
-        header, data = read_file(file_csv, delimiter=separator, encoding=encoding, skip=skip)
-        fail_file = fail_file or file_csv + ".fail"
-        file_result = open(fail_file, "wb")
+    if fobj_read:
+        header, data = read_file(fobj_read, delimiter=separator, encoding=encoding, skip=skip)
+        fobj_fail = fobj_fail or open(fobj_read.name + ".fail", 'wb')
 
-    if not header or data == None:
+    if not header or data is None:
         raise ValueError("Please provide either a data file or a header and data")
 
     object_registry = conf_lib.get_server_connection(config_file).get_model(model)
 
-    if file_csv:
-        writer = UnicodeWriter(file_result, delimiter=separator, encoding=encoding, quoting=csv.QUOTE_ALL)
+    if fobj_read:
+        writer = UnicodeWriter(fobj_fail, delimiter=separator, encoding=encoding, quoting=csv.QUOTE_ALL)
     else:
         writer = ListWriter()
 
     writer.writerow(filter_header_ignore(ignore, header))
-    if file_csv:
-        file_result.flush()
+    if fobj_read:
+        fobj_fail.flush()
     rpc_thread = RPCThreadImport(int(max_connection), object_registry, filter_header_ignore(ignore, header), writer, batch_size, context)
     st = time()
 
@@ -216,11 +214,11 @@ def import_data(config_file, model, header=None, data=None, file_csv=None, conte
         rpc_thread.launch_batch(lines, batch_number, check)
 
     rpc_thread.wait()
-    if file_csv:
-        file_result.close()
+    if fobj_read:
+        fobj_fail.close()
 
     log_info("%s %s imported, total time %s second(s)" % (len(data), model, (time() - st)))
-    if file_csv:
+    if fobj_read:
         return False, False
     else:
         return writer.header, writer.data
