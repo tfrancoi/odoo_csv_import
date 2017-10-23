@@ -17,6 +17,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
 import argparse
+from odoo_csv_tools.lib import config_file_parse
 from odoo_csv_tools import export_threaded
 
 if __name__ == '__main__':
@@ -33,6 +34,7 @@ if __name__ == '__main__':
     # TODO args : encoding
     # {'update_many2many': True,'tracking_disable' : True, 'create_product_variant' : True, 'check_move_validity' : False}
     args = parser.parse_args()
+    config = config_file_parse(args.config)
 
     config_file = args.config
     file_csv = args.filename
@@ -44,4 +46,4 @@ if __name__ == '__main__':
     context = eval(args.context)
     domain = eval(args.domain)
     header = args.fields.split(',')
-    export_threaded.export_data(config_file, model, domain, header, context=context, output=file_csv, max_connection=max_connection, batch_size=batch_size, separator=separator, encoding=encoding)
+    export_threaded.export_data(config, model, domain, header, context=context, output=file_csv, max_connection=max_connection, batch_size=batch_size, separator=separator, encoding=encoding)

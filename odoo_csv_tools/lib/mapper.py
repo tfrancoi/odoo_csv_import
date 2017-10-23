@@ -189,7 +189,7 @@ def m2m_attribute_value(PREFIX, *args):
 
 
 """
-    Mapper that require rpc Connection (conf_lib)
+    Mapper that require rpc Connection (lib.get_server_connection())
 """
 
 

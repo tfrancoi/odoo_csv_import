@@ -23,8 +23,7 @@ from time import time
 from itertools import islice, chain
 from xmlrpclib import Fault
 
-from lib import conf_lib
-from lib.conf_lib import log_error, log_info, log
+from lib import log_error, log_info, log, get_server_connection
 from lib.internal.rpc_thread import RpcThread
 from lib.internal.io import ListWriter
 from lib.internal.csv_reader import UnicodeReader, UnicodeWriter
@@ -169,7 +168,7 @@ def split_sort(split, header, data):
     return data, split_index
 
 
-def import_data(config_file, model, header=None, data=None, fobj_read=None, context=None, fobj_fail=False, encoding='utf-8-sig', separator=";", ignore=False, split=False, check=True, max_connection=1, batch_size=10, skip=0):
+def import_data(config, model, header=None, data=None, fobj_read=None, context=None, fobj_fail=False, encoding='utf-8-sig', separator=";", ignore=False, split=False, check=True, max_connection=1, batch_size=10, skip=0):
     """
         header and data mandatory in fobj_read is not provided
 
@@ -184,7 +183,7 @@ def import_data(config_file, model, header=None, data=None, fobj_read=None, cont
     if not header or data is None:
         raise ValueError("Please provide either a data file or a header and data")
 
-    object_registry = conf_lib.get_server_connection(config_file).get_model(model)
+    object_registry = get_server_connection(config).get_model(model)
 
     if fobj_read:
         writer = UnicodeWriter(fobj_fail, delimiter=separator, encoding=encoding, quoting=csv.QUOTE_ALL)

@@ -23,8 +23,7 @@ from itertools import islice, chain
 import sys
 import csv
 
-from lib import conf_lib
-from lib.conf_lib import log_error, log_info
+from lib import log_error, log_info, get_server_connection
 from lib.internal.rpc_thread import RpcThread
 from lib.internal.csv_reader import UnicodeWriter
 from odoo_csv_tools.lib.internal.io import ListWriter
@@ -74,9 +73,9 @@ class RPCThreadExport(RpcThread):
             file_writer.writerows(self.result[key])
 
 
-def export_data(config_file, model, domain, header, context=None, output=None, max_connection=1, batch_size=100, separator=';', encoding='utf-8-sig'):
+def export_data(config, model, domain, header, context=None, output=None, max_connection=1, batch_size=100, separator=';', encoding='utf-8-sig'):
 
-    object_registry = conf_lib.get_server_connection(config_file).get_model(model)
+    object_registry = get_server_connection(config).get_model(model)
 
     if output:
         file_result = open(output, "wb")
