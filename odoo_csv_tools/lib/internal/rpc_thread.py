@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 '''
 Created on 19 august 2016
 
@@ -6,6 +6,7 @@ Created on 19 august 2016
 '''
 
 import threading
+
 
 class RpcThread(object):
 
@@ -20,7 +21,7 @@ class RpcThread(object):
             self.semaphore.acquire()
             try:
                 fun(*args, **kwarg)
-            except:
+            except Exception:
                 self.semaphore.release()
                 self.max_thread_semaphore.release()
                 raise

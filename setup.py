@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 '''
 Copyright (C) Thibault Francois
 
@@ -33,5 +33,5 @@ setup(name='odoo-import-export-client',
       classifiers=[
           "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
           "Programming Language :: Python",
-          ],
-     )
+      ],
+      )
