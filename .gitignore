@@ -4,3 +4,11 @@
 
 
 /odoo-import-export.sublime-workspace
+
+/build/
+
+/dist/
+
+/odoo_import_export_client.egg-info/
+
+/venv/
