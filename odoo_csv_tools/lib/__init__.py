@@ -1,14 +1,13 @@
-import internal  # noqa
-import workflow  # noqa
-import checker  # noqa
-import mapper  # noqa
-import transform  # noqa
-
 import openerplib
 import ConfigParser
 import logging
 import sys
 
+from . import internal  # noqa
+from . import workflow  # noqa
+from . import checker  # noqa
+from . import mapper  # noqa
+from . import transform  # noqa
 
 def config_file_parse(config_file):
     config = ConfigParser.RawConfigParser({'protocol': 'xmlrpc', 'port': 8069})
