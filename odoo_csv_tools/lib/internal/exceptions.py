@@ -5,4 +5,5 @@ Created on 9 sept. 2016
 '''
 
 class SkippingException(Exception):
-    pass
+    def __init__(self, message):
+        self.message = message

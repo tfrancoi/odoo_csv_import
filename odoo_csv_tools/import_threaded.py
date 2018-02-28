@@ -20,23 +20,22 @@ import sys
 import csv
 
 from time import time
-from itertools import islice, chain
-from xmlrpclib import Fault
 
-from lib import conf_lib
-from lib.conf_lib import log_error, log_info, log
-from lib.internal.rpc_thread import RpcThread
-from lib.internal.io import ListWriter
-from lib.internal.csv_reader import UnicodeReader, UnicodeWriter
+from . lib import conf_lib
+from . lib.conf_lib import log_error, log_info, log
+from . lib.internal.rpc_thread import RpcThread
+from . lib.internal.io import ListWriter, open_read, open_write
+from . lib.internal.csv_reader import UnicodeReader, UnicodeWriter
+from . lib.internal.tools import batch
 
-csv.field_size_limit(sys.maxint)
+if sys.version_info >= (3, 0, 0):
+    from xmlrpc.client import Fault
+else:
+    from xmlrpclib import Fault
+    from builtins import range
 
 
-def batch(iterable, size):
-    sourceiter = iter(iterable)
-    while True:
-        batchiter = islice(sourceiter, size)
-        yield chain([batchiter.next()], batchiter)
+
 
 class RPCThreadImport(RpcThread):
 
@@ -141,13 +140,13 @@ def read_file(file_to_read, delimiter=';', encoding='utf-8-sig', skip=0):
 
     def skip_line(reader):
         log_info("Skipping until line %s excluded" % skip)
-        for _ in xrange(1, skip):
+        for _ in range(1, skip):
             reader.next()
 
     log('open %s' % file_to_read)
-    file_ref = open(file_to_read, 'r')
+    file_ref = open_read(file_to_read, encoding='utf-8-sig')
     reader = UnicodeReader(file_ref, delimiter=delimiter, encoding='utf-8-sig')
-    header = reader.next()
+    header = next(reader)
     header = get_real_header(header)
     check_id_column(header)
     skip_line(reader)
@@ -176,7 +175,7 @@ def import_data(config_file, model, header=None, data=None, file_csv=None, conte
     if file_csv:
         header, data = read_file(file_csv, delimiter=separator, encoding=encoding, skip=skip)
         fail_file = fail_file or file_csv + ".fail"
-        file_result = open(fail_file, "wb")
+        file_result = open_write(fail_file, encoding=encoding)
 
     if not header or data == None:
         raise ValueError("Please provide either a data file or a header and data")
@@ -220,4 +219,3 @@ def import_data(config_file, model, header=None, data=None, file_csv=None, conte
         return False, False
     else:
         return writer.header, writer.data
-

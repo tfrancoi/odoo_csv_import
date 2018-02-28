@@ -19,11 +19,11 @@ from setuptools import setup, find_packages
 
 
 setup(name='odoo-import-export-client',
-      version='1.1.0',
-      install_requires=['openerp-client-lib'],
+      version='1.1.1',
+      install_requires=['odoo-client-lib', 'future', 'unicodecsv'],
       description='Library and script that allow to export and import data to Odoo using rpc api.',
       author='Thibault Francois',
-      author_email='thibault@françois.be',
+      author_email='francois.th@gmail.com',
       url='https://github.com/tfrancoi/odoo_csv_import',
       packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
       scripts=['odoo_export_thread.py', 'odoo_import_thread.py'],

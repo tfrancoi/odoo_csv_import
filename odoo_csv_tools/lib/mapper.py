@@ -1,18 +1,19 @@
 """
     Mapper
 """
-from internal.tools import to_m2m, to_m2o
-from internal.exceptions import SkippingException
+from . internal.tools import to_m2m, to_m2o
+from . internal.io import is_string
+from . internal.exceptions import SkippingException
 import base64
 import os
 
 def str_to_mapper(field):
-    if isinstance(field, basestring):
+    if is_string(field):
         return val(field)
     return field
 
 def list_to_mapper(args):
-    return [val(f) if isinstance(f, basestring) else f for f in args]
+    return [val(f) if is_string(f) else f for f in args]
 
 
 def field(col):
@@ -129,7 +130,7 @@ def bool_val(field, true_vals=[], false_vals=[]):
         return '1' if line[field] else '0'
     return bool_val_fun
 
-def binary(field, path_prefix, skip=False):
+def binary(field, path_prefix, skip=False, encoding="utf-8"):
     def binary_val(line):
         path = path_prefix + (line[field] or '')
         if not os.path.exists(path) or not line[field]:
@@ -138,7 +139,7 @@ def binary(field, path_prefix, skip=False):
             return ''
 
         with open(path, "rb") as image_file:
-                encoded_string = base64.b64encode(image_file.read())
+                encoded_string = base64.b64encode(image_file.read()).decode("utf-8")
                 image_file.close()
         return encoded_string
     return binary_val
@@ -209,7 +210,6 @@ def database_id_mapper_fallback_create(connection, model, *fields_mapper, **kwar
             if rec and rec[0]['res_id']:
                 return str(rec[0]['res_id'])
             else:
-                print "import"
                 connection.get_model(model).load(['id', 'name'], [[res, res]], context={'tracking_disable' : True, 'create_product_variant' : True,})
                 return database_id_mapper_fun(line)
         if skip:

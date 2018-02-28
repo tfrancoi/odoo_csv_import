@@ -3,9 +3,15 @@ Created on 7 avr. 2016
 
 @author: odoo
 '''
-import xmlrpclib
+#from __future__ import absolute_import
+import sys
+if sys.version_info >= (3, 0, 0):
+    from xmlrpc.client import Fault
+else:
+    from xmlrpclib import Fault
+
 from time import time
-from internal.rpc_thread import RpcThread
+from . internal.rpc_thread import RpcThread
 
 class InvoiceWorkflowV9():
     def __init__(self, connection, field, status_map, paid_date_field, payment_journal, max_connection=4):
@@ -33,7 +39,7 @@ class InvoiceWorkflowV9():
 
     def display_percent(self, i, percent_step, total):
         if i % percent_step == 0:
-            print "%s%% : %s/%s time %s sec" % (round(i / float(total) * 100, 2), i, total, time() - self.time)
+            print("%s%% : %s/%s time %s sec" % (round(i / float(total) * 100, 2), i, total, time() - self.time))
 
     def set_tax(self):
         def create_tax(invoice_id):
@@ -48,7 +54,7 @@ class InvoiceWorkflowV9():
         percent_step = int(total / 5000) or 1
         self.time = time()
         rpc_thread = RpcThread(self.max_connection)
-        print "Compute Tax %s invoice" %  total
+        print("Compute Tax %s invoice" %  total)
         for i, invoice_id in enumerate(invoices):
             self.display_percent(i, percent_step, total)
             rpc_thread.spawn_thread(create_tax, [invoice_id])
@@ -61,7 +67,7 @@ class InvoiceWorkflowV9():
         total = len(invoice_to_validate)
         percent_step = int(total / 5000) or 1
         rpc_thread = RpcThread(1)
-        print "Validate %s invoice" %  total
+        print("Validate %s invoice" %  total)
         self.time = time()
         for i, invoice_id in enumerate(invoice_to_validate):
             self.display_percent(i, percent_step, total)
@@ -82,7 +88,7 @@ class InvoiceWorkflowV9():
         percent_step = int(total / 100) or 1
         self.time = time()
         rpc_thread = RpcThread(self.max_connection)
-        print "Pro Format %s invoice" %  total
+        print("Pro Format %s invoice" %  total)
         for i, invoice_id in enumerate(invoice_to_proforma):
             self.display_percent(i, percent_step, total)
             fun = self.connection.get_service('object').exec_workflow()
@@ -107,7 +113,7 @@ class InvoiceWorkflowV9():
             wizard_id = self.payement_obj.create(data, context=wizard_context)
             try:
                 self.payement_obj.post([wizard_id], context=wizard_context)
-            except xmlrpclib.Fault:
+            except Fault:
                 pass
 
 
@@ -117,7 +123,7 @@ class InvoiceWorkflowV9():
         percent_step = int(total / 1000) or 1
         self.time = time()
         rpc_thread = RpcThread(self.max_connection)
-        print "Paid %s invoice" %  total
+        print("Paid %s invoice" %  total)
         for i, invoice in enumerate(invoice_to_paid):
             self.display_percent(i, percent_step, total)
             wizard_context = {
@@ -143,7 +149,7 @@ class InvoiceWorkflowV9():
         percent_step = int(total / 1000) or 1
         self.time = time()
         rpc_thread = RpcThread(int(self.max_connection * 1.5))
-        print "Rename %s invoice" %  total
+        print("Rename %s invoice" %  total)
         for i, invoice in enumerate(invoice_to_paid):
             self.display_percent(i, percent_step, total)
             rpc_thread.spawn_thread(self.invoice_obj.write, [invoice['id'], {'number' : invoice[name_field], name_field : False}], {})

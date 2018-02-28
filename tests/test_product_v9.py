@@ -2,6 +2,11 @@
 import os
 from odoo_csv_tools.lib import mapper
 from odoo_csv_tools.lib.transform import ProductProcessorV9
+import sys
+from const import EXEC
+
+if len(sys.argv) == 2:
+    EXEC = sys.argv[1]
 
 TEMPLATE_PREFIX = "PRODUCT_TEMPLATE"
 PRODUCT_PREFIX = "PRODUCT_PRODUCT"
@@ -66,4 +71,4 @@ product_mapping = {
 processor.process(product_mapping, 'data%sproduct.product.csv' % os.sep, { 'worker' : 3, 'batch_size' : 50, 'groupby' : 'product_tmpl_id/id', 'context' : context}, 'set')
 
 #Step 6: Define output and import parameter
-processor.write_to_file("3_product_import.sh", python_exe='python-coverage run -a', path='../')
+processor.write_to_file("3_product_import.sh", python_exe=EXEC, path='../')

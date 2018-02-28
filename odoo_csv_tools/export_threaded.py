@@ -14,29 +14,25 @@ Lesser General Lesser Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
-
-from xmlrpclib import Fault
-from time import time
-from itertools import islice, chain
-
-
 import sys
 import csv
 
-from lib import conf_lib
-from lib.conf_lib import log_error, log_info
-from lib.internal.rpc_thread import RpcThread
-from lib.internal.csv_reader import UnicodeWriter
-from odoo_csv_tools.lib.internal.io import ListWriter
+from time import time
 
-csv.field_size_limit(sys.maxint)
+from . lib import conf_lib
+from . lib.conf_lib import log_error, log_info
+from . lib.internal.rpc_thread import RpcThread
+from . lib.internal.csv_reader import UnicodeWriter
+from . lib.internal.io import ListWriter, open_write
+from . lib.internal.tools import batch
 
+if sys.version_info >= (3, 0, 0):
+    from xmlrpc.client import Fault
+    csv.field_size_limit(sys.maxsize)
+else:
+    from xmlrpclib import Fault
+    csv.field_size_limit(sys.maxint)
 
-def batch(iterable, size):
-    sourceiter = iter(iterable)
-    while True:
-        batchiter = islice(sourceiter, size)
-        yield chain([batchiter.next()], batchiter)
 
 class RPCThreadExport(RpcThread):
 
@@ -80,7 +76,7 @@ def export_data(config_file, model, domain, header, context=None, output=None, m
     object_registry = conf_lib.get_server_connection(config_file).get_model(model)
 
     if output:
-        file_result = open(output, "wb")
+        file_result = open_write(output)
         writer = UnicodeWriter(file_result, delimiter=separator, encoding=encoding, quoting=csv.QUOTE_ALL)
     else:
         writer = ListWriter()
@@ -104,6 +100,3 @@ def export_data(config_file, model, domain, header, context=None, output=None, m
         return False, False
     else:
         return writer.header, writer.data
-
-
-

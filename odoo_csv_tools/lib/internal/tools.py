@@ -3,12 +3,18 @@ Created on 9 sept. 2016
 
 @author: Thibault Francois <francois.th@gmail.com>
 '''
+from itertools import islice, chain
 
+def batch(iterable, size):
+    sourceiter = iter(iterable)
+    while True:
+        batchiter = islice(sourceiter, size)
+        yield chain([next(batchiter)], batchiter)
 """
     Data formatting tools
 """
 def to_xmlid(name):
-    return name.replace('.', '_').replace(',', '_').strip()
+    return name.replace('.', '_').replace(',', '_').replace('\n', '_').strip()
 
 def list_to_xml_id(names):
     return '_'.join([to_xmlid(name) for name in names])
@@ -77,10 +83,10 @@ class AttributeLineDict:
     def generate_line(self):
         lines_header = ['id', 'product_tmpl_id/id', 'attribute_id/id', 'value_ids/id']
         lines_out = []
-        for template_id, attributes in self.data.iteritems():
+        for template_id, attributes in self.data.items():
             if not template_id:
                 continue
-            for attribute, values in attributes.iteritems():
+            for attribute, values in attributes.items():
                 line = [self.id_gen(template_id, attributes), template_id, attribute, ','.join(values)]
                 lines_out.append(line)
         return lines_header, lines_out

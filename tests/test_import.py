@@ -6,16 +6,25 @@ Created on 14 sept. 2016
 from odoo_csv_tools.lib import mapper
 from odoo_csv_tools.lib import transform
 import random
+import sys
+from const import EXEC
+if sys.version_info < (3, 0, 0):
+    from builtins import range
+
+if len(sys.argv) == 2:
+    EXEC = sys.argv[1]
+
+
 PARTNER_PREFIX = 'partner_generated'
 TAG_PREFIX = 'partner_tag'
 output = 'data/res.partner.generated.csv'
 tag_output = 'data/res.partner.category.csv'
 script = '0_partner_generated.sh'
 
-tags = ["Tag %s" % i for i in xrange(0,100)]
+tags = ["Tag %s" % i for i in range(0,100)]
 
 header = ['id', 'tags']
-data = [[str(i), ','.join(tags[random.randint(0, 99)] for i in xrange(0, 5))] for i in xrange(0,1000)]
+data = [[str(i), ','.join(tags[random.randint(0, 99)] for i in range(0, 5))] for i in range(0,200)]
 
 
 mapping = {
@@ -51,4 +60,4 @@ processor.process(mapping, output, {
     'batch_size' : 100,
     'model' : 'res.partner',
 })
-processor.write_to_file(script, python_exe='python-coverage run -a', path='../')
+processor.write_to_file(script, python_exe=EXEC, path='../')

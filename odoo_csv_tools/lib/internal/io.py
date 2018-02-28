@@ -3,14 +3,40 @@ Created on 10 sept. 2016
 
 @author: mythrys
 '''
+from __future__ import absolute_import
+
 import csv
 import os
+import sys
+from . csv_reader import UnicodeWriter, UnicodeReader
 
-from csv_reader import UnicodeWriter, UnicodeReader
+"""
+    Compatibility layer between python 2.7 and python 3
+"""
+def is_string(f):
+    if sys.version_info >= (3, 0, 0):
+        return isinstance(f, str)
+    else:
+        return isinstance(f, basestring)
 
+def open_read(f, encoding='utf-8-sig'):
+    if not is_string(f):
+        return f
+    if sys.version_info >= (3, 0, 0):
+        return open(f, 'r', newline='', encoding=encoding)
+    else:
+        return open(f, 'r')
+
+def open_write(f, encoding='utf-8-sig'):
+    if not is_string(f):
+        return f
+    if sys.version_info >= (3, 0, 0):
+        return open(f, "w", newline='', encoding=encoding)
+    else:
+        return open(f, "w")
 
 def write_csv(filename, header, data):
-    file_result = open(filename, "wb")
+    file_result = open_write(filename)
     c = UnicodeWriter(file_result, delimiter=';', quoting=csv.QUOTE_ALL)
     c.writerow(header)
     for d in data:

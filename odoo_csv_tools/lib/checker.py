@@ -15,7 +15,7 @@ def id_validity_checker(id_field, pattern, null_values=['NULL']):
             line = [s.strip() if s.strip() not in null_values else '' for s in line]
             line_dict = dict(zip(header, line))
             if not regular.match(line_dict[id_field]):
-                print "Check Failed Id Validity", i+1, line_dict[id_field]
+                print("Check Failed Id Validity", i+1, line_dict[id_field])
                 res = False
         return res
     return check_id_validity
@@ -27,7 +27,7 @@ def line_length_checker(length):
         for line in data:
             i+=1
             if len(line) != length:
-                print "Check Failed", i, "Line Length", len(line)
+                print("Check Failed", i, "Line Length", len(line))
                 res = False
         return res
     return check_line_length
@@ -35,7 +35,7 @@ def line_length_checker(length):
 def line_number_checker(line_number):
     def check_line_numner(header, data):
         if len(data) + 1 != line_number:
-            print "Check Line Number Failed %s instead of %s" % (len(data) + 1, line_number)
+            print("Check Line Number Failed %s instead of %s" % (len(data) + 1, line_number))
             return False
         else:
             return True
@@ -47,8 +47,8 @@ def cell_len_checker(max_cell_len):
         for i, line in enumerate(data):
             for ele in line:
                 if len(ele) > max_cell_len:
-                    print "Check Failed", i + 1, "Cell Length", len(ele)
-                    print line
+                    print("Check Failed", i + 1, "Cell Length", len(ele))
+                    print(line)
                     res = False
         return res
     return check_max_cell_len
