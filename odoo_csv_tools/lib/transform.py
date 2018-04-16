@@ -16,7 +16,7 @@ from . import mapper
 
 
 class Processor(object):
-    def __init__(self, filename=None, delimiter=";", encoding='utf-8-sig', header=None, data=None, preprocess=lambda header, data: (header, data)):
+    def __init__(self, filename=None, delimiter=";", encoding='utf-8-sig', header=None, data=None, preprocess=lambda header, data: (header, data), conf_file=False):
         self.file_to_write = OrderedDict()
         if header and data:
             self.header = header
@@ -26,6 +26,7 @@ class Processor(object):
         else:
             raise Exception("No Filename nor header and data provided")
         self.header, self.data = preprocess(self.header, self.data)
+        self.conf_file = conf_file
 
     def check(self, check_fun, message=None):
         res = check_fun(self.header, self.data)
@@ -73,7 +74,7 @@ class Processor(object):
         self._add_data(head, data, filename_out, import_args)
         return head, data
 
-    def write_to_file(self, script_filename, fail=True, append=False, python_exe='python', path='./', conf_file=False):
+    def write_to_file(self, script_filename, fail=True, append=False, python_exe='python', path='./'):
         init = not append
         for _, info in self.file_to_write.items():
             info_copy = dict(info)
@@ -84,7 +85,7 @@ class Processor(object):
                 'fail' : fail,
                 'python_exe' : python_exe,
                 'path' : path,
-                'conf_file' : conf_file,
+                'conf_file' : self.conf_file,
             })
 
             write_file(**info_copy)
