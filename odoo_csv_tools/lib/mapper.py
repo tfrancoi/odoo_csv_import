@@ -226,7 +226,7 @@ def m2m_id_list(PREFIX, *args, **kwargs):
         """ Return a list of unique element (xml_id, name)
         """
         map_list = list_to_mapper(args)
-        value = ','.join([to_m2m(PREFIX, m(line)) for m in map_list if m(line)] + const_values)
+        value = ','.join([to_m2m(PREFIX, m(line), upper=kwargs.get("upper", False)) for m in map_list if m(line)] + const_values)
         s = []
         for val in value.split(','):
             if val.strip():
