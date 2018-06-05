@@ -13,32 +13,42 @@ def batch(iterable, size):
 """
     Data formatting tools
 """
-def to_xmlid(name):
-    return name.replace('.', '_').replace(',', '_').replace('\n', '_').strip()
+def to_xmlid(name, upper=False):
+    xml_id = name.replace('.', '_').replace(',', '_').replace('\n', '_').strip()
+    if upper:
+        xml_id = getattr(xml_id, upper)()
+    return xml_id
 
-def list_to_xml_id(names):
-    return '_'.join([to_xmlid(name) for name in names])
+def list_to_xml_id(names, upper=False):
+    return '_'.join([to_xmlid(name, upper) for name in names])
 
-def to_m2o(PREFIX, value, default=''):
+def to_m2o(PREFIX, value, default='', upper=False):
     if not value:
         return default
-    return PREFIX + '.' + to_xmlid(value)
+    xml_id = PREFIX + '.' + to_xmlid(value, upper)
+    if upper:
+        xml_id = getattr(xml_id, upper)()
+    return xml_id
 
-def to_m2m(PREFIX, value):
+def to_m2m(PREFIX, value, upper=False):
     if not value:
         return ''
 
     ids = []
     for val in value.split(','):
         if val.strip():
-            ids.append(PREFIX + '.' + to_xmlid(val))
-    return ','.join(ids)
+            ids.append(PREFIX + '.' + to_xmlid(val, upper))
+    xml_id = ','.join(ids)
 
-def generate_attribute_list(PREFIX, *attributes):
+    if upper:
+        xml_id = getattr(xml_id, upper)()
+    return xml_id
+
+def generate_attribute_list(PREFIX, *attributes, upper=False):
     header = ['id', 'name']
     lines = set()
     for att in attributes:
-        lines.add((to_m2o(PREFIX, att), att))
+        lines.add((to_m2o(PREFIX, att, upper), att))
     return header, lines
 
 """
