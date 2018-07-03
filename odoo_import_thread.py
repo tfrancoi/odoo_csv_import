@@ -33,6 +33,7 @@ if __name__ == '__main__':
     parser.add_argument('--ignore', dest='ignore', help='list of column separate by comma. Those column will be remove from the import request')
     parser.add_argument('--check', dest='check', action='store_true', help='Check if record are imported after each batch.')
     parser.add_argument('--context', dest='context', help='context that will be passed to the load function, need to be a valid python dict', default="{'tracking_disable' : True}")
+    parser.add_argument('--o2m', action='store_true', dest="o2m", help="When you want to import o2m field, don't cut the batch until we find a new id")
     #TODO args : encoding
     #{'update_many2many': True,'tracking_disable' : True, 'create_product_variant' : True, 'check_move_validity' : False}
     args = parser.parse_args()
@@ -58,4 +59,4 @@ if __name__ == '__main__':
     import_threaded.import_data(args.config, args.model, file_csv=file_csv, context=context,
                                 fail_file=fail_file, encoding=encoding, separator=args.separator,
                                 ignore=ignore, split=args.split, check=args.check,
-                                max_connection=max_connection, batch_size=batch_size, skip=int(args.skip))
+                                max_connection=max_connection, batch_size=batch_size, skip=int(args.skip), o2m=args.o2m)

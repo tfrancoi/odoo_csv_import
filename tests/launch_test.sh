@@ -26,5 +26,7 @@ do
   $EXEC test_product_v10.py "$EXEC"
   sh 4_product_import.sh
   sh 5_partner_export.sh "$EXEC"
+  echo "> Import One2Many"
+  sh 6_o2m_import.sh "$EXEC"
   coverage html
 done

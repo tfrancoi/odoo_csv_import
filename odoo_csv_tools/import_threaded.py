@@ -46,10 +46,11 @@ class RPCThreadImport(RpcThread):
         self.context = context
 
 
-    def launch_batch(self, data_lines, batch_number, check=False):
+    def launch_batch(self, data_lines, batch_number, check=False, o2m=False):
         def launch_batch_fun(lines, batch_number, check=False):
             i = 0
-            for lines_batch in batch(lines, self.batch_size):
+            batch_size = len(lines) if o2m else self.batch_size
+            for lines_batch in batch(lines, batch_size):
                 lines_batch = [l for l in lines_batch]
                 self.sub_batch_run(lines_batch, batch_number, i, len(lines), check=check)
                 i += 1
@@ -93,16 +94,6 @@ class RPCThreadImport(RpcThread):
             return False
 
         return True
-
-def do_not_split(split, previous_split_value, split_index, line):
-    if not split: # If no split no need to continue
-        return False
-
-    split_value = line[split_index]
-    if split_value != previous_split_value: #Different Value no need to not split
-        return False
-
-    return True
 
 def filter_line_ignore(ignore, header, line):
     new_line = []
@@ -151,6 +142,9 @@ def read_file(file_to_read, delimiter=';', encoding='utf-8-sig', skip=0):
     data = [l for l in reader]
     return header, data
 
+"""
+    Splitting helper method
+"""
 def split_sort(split, header, data):
     split_index = 0
     if split:
@@ -162,7 +156,22 @@ def split_sort(split, header, data):
         data = sorted(data, key=lambda d: d[split_index])
     return data, split_index
 
-def import_data(config_file, model, header=None, data=None, file_csv=None, context=None, fail_file=False, encoding='utf-8-sig', separator=";", ignore=False, split=False, check=True, max_connection=1, batch_size=10, skip=0):
+def do_not_split(split, previous_split_value, split_index, line, o2m=False, id_index=0):
+    #Do not split if you want to keep the one2many line with it's parent
+    #The column id should be empty
+    if o2m and not line[id_index]:
+        return True
+
+    if not split: # If no split no need to continue
+        return False
+
+    split_value = line[split_index]
+    if split_value != previous_split_value: #Different Value no need to not split
+        return False
+
+    return True
+
+def import_data(config_file, model, header=None, data=None, file_csv=None, context=None, fail_file=False, encoding='utf-8-sig', separator=";", ignore=False, split=False, check=True, max_connection=1, batch_size=10, skip=0, o2m=False):
     """
         header and data mandatory in file_csv is not provided
 
@@ -191,7 +200,7 @@ def import_data(config_file, model, header=None, data=None, file_csv=None, conte
     rpc_thread = RPCThreadImport(int(max_connection), object_registry, filter_header_ignore(ignore, header), writer, batch_size, context)
     st = time()
 
-
+    id_index = header.index('id')
     data, split_index = split_sort(split, header, data)
 
     i = 0
@@ -199,14 +208,14 @@ def import_data(config_file, model, header=None, data=None, file_csv=None, conte
     while  i < len(data):
         lines = []
         j = 0
-        while i < len(data) and (j < batch_size or do_not_split(split, previous_split_value, split_index, data[i])):
+        while i < len(data) and (j < batch_size or do_not_split(split, previous_split_value, split_index, data[i], o2m=o2m, id_index=id_index)):
             line = data[i][:len(header)]
             lines.append(filter_line_ignore(ignore, header, line))
             previous_split_value = line[split_index]
             j += 1
             i += 1
         batch_number = split and "[%s] - [%s]" % (rpc_thread.thread_number(), previous_split_value) or "[%s]" % rpc_thread.thread_number()
-        rpc_thread.launch_batch(lines, batch_number, check)
+        rpc_thread.launch_batch(lines, batch_number, check, o2m=o2m)
 
     rpc_thread.wait()
     if file_csv:
