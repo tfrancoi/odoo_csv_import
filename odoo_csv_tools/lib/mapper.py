@@ -118,9 +118,6 @@ def m2m_map(PREFIX, mapper):
         return to_m2m(PREFIX, mapper(line))
     return m2m_fun
 
-
-
-
 def bool_val(field, true_vals=[], false_vals=[]):
     def bool_val_fun(line):
         if line[field] in true_vals:
@@ -130,10 +127,11 @@ def bool_val(field, true_vals=[], false_vals=[]):
         return '1' if line[field] else '0'
     return bool_val_fun
 
-def binary(field, path_prefix, skip=False, encoding="utf-8"):
+def binary_map(mapper, path_prefix, skip=False, encoding="utf-8"):
     def binary_val(line):
-        path = path_prefix + (line[field] or '')
-        if not os.path.exists(path) or not line[field]:
+        field = mapper(line)
+        path = path_prefix + (mapper(line) or '')
+        if not os.path.exists(path) or not field:
             if skip:
                 raise SkippingException("Missing File %s for field %s" % (path, field))
             return ''
@@ -144,9 +142,11 @@ def binary(field, path_prefix, skip=False, encoding="utf-8"):
         return encoded_string
     return binary_val
 
+def binary(field, path_prefix, skip=False, encoding="utf-8"):
+    return binary_map(val(field), path_prefix, skip=skip, encoding=encoding)
+
 """
     Specific to attribute mapper for V9 product.attribute_import
-
 """
 
 def val_att(att_list):
