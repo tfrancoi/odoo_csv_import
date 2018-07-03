@@ -43,7 +43,7 @@ class Processor(object):
             k = split_fun(dict(zip(self.header, d)), i)
             res.setdefault(k, []).append(d)
         processor_dict = {}
-        for k, data in res.iteritems():
+        for k, data in res.items():
             processor_dict[k] = Processor(header=list(self.header), data=data)
         return processor_dict
 

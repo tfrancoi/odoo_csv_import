@@ -12,10 +12,10 @@ output = 'data/res.partner.generated.csv'
 tag_output = 'data/res.partner.category.csv'
 script = '1_partner_split.sh'
 
-tags = ["Tag %s" % i for i in xrange(0,100)]
+tags = ["Tag %s" % i for i in range(0,100)]
 
 header = ['id', 'tags']
-data = [[str(i), ','.join(tags[random.randint(0, 99)] for i in xrange(0, 5))] for i in xrange(0,10000)]
+data = [[str(i), ','.join(tags[random.randint(0, 99)] for i in range(0, 5))] for i in range(0,10000)]
 
 
 mapping = {

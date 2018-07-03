@@ -35,8 +35,6 @@ else:
     from builtins import range
 
 
-
-
 class RPCThreadImport(RpcThread):
 
     def __init__(self, max_connection, model, header, writer, batch_size=20, context=None):
