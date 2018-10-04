@@ -19,7 +19,7 @@ from setuptools import setup, find_packages
 
 
 setup(name='odoo-import-export-client',
-      version='2.0.0',
+      version='2.1.0',
       install_requires=['odoo-client-lib', 'future', 'unicodecsv'],
       description='Library and script that allow to export and import data to Odoo using rpc api.',
       author='Thibault Francois',
