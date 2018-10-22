@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 '''
 Copyright (C) Thibault Francois
 
@@ -17,7 +17,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 from setuptools import setup, find_packages
 
-
 setup(name='odoo-import-export-client',
       version='2.1.0',
       install_requires=['odoo-client-lib', 'future', 'unicodecsv'],
@@ -33,5 +32,5 @@ setup(name='odoo-import-export-client',
       classifiers=[
           "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
           "Programming Language :: Python",
-          ],
-     )
+      ],
+      )

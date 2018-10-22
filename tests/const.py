@@ -1,2 +1,2 @@
-#EXEC = 'coverage run -a'
+# EXEC = 'coverage run -a'
 EXEC = 'python3'

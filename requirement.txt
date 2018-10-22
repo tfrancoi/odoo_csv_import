@@ -1,3 +1,0 @@
-odoo-client-lib==1.1.2
-unicodecsv==0.14.1
-future=0.16.0
