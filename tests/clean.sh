@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #Need to launch odoo database accessible with the configuration given in conf/connection.conf
 #Modules contacts need to be installed
 
