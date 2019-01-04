@@ -8,7 +8,7 @@ from __future__ import absolute_import
 import csv
 import os
 import sys
-from .csv_reader import UnicodeWriter, UnicodeReader
+from . csv_reader import UnicodeWriter, UnicodeReader
 
 """
     Compatibility layer between python 2.7 and python 3
