@@ -14,7 +14,6 @@ from . internal.io import write_file, is_string, open_read
 from . internal.exceptions import SkippingException
 from . import mapper
 
-
 class Processor(object):
     def __init__(self, filename=None, delimiter=";", encoding='utf-8-sig', header=None, data=None, preprocess=lambda header, data: (header, data), conf_file=False):
         self.file_to_write = OrderedDict()
@@ -74,7 +73,7 @@ class Processor(object):
         self._add_data(head, data, filename_out, import_args)
         return head, data
 
-    def write_to_file(self, script_filename, fail=True, append=False, python_exe='python', path='./'):
+    def write_to_file(self, script_filename, fail=True, append=False, python_exe='python', path=''):
         init = not append
         for _, info in self.file_to_write.items():
             info_copy = dict(info)
