@@ -33,6 +33,8 @@ else:
     from xmlrpclib import Fault
     from builtins import range
 
+csv.field_size_limit(2**31-1)
+
 
 class RPCThreadImport(RpcThread):
 

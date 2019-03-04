@@ -26,15 +26,13 @@ from .lib.internal.csv_reader import UnicodeWriter
 from .lib.internal.io import ListWriter, open_write
 from .lib.internal.tools import batch
 
+
 if sys.version_info >= (3, 0, 0):
     from xmlrpc.client import Fault
-
-    csv.field_size_limit(sys.maxsize)
 else:
     from xmlrpclib import Fault
 
-    csv.field_size_limit(sys.maxint)
-
+csv.field_size_limit(2**31-1)
 
 class RPCThreadExport(RpcThread):
 
