@@ -125,7 +125,6 @@ class Processor(object):
                 lines_out.append(line_out)
             else:
                 lines_out.add(tuple(line_out))
-
         return mapping.keys(), lines_out
 
     def __process_mapping_m2m(self, mapping, null_values, verbose):
