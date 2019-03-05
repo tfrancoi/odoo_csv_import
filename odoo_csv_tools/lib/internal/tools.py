@@ -9,7 +9,10 @@ def batch(iterable, size):
     sourceiter = iter(iterable)
     while True:
         batchiter = islice(sourceiter, size)
-        yield chain([next(batchiter)], batchiter)
+        try:
+            yield chain([next(batchiter)], batchiter)
+        except StopIteration:
+            return
 """
     Data formatting tools
 """

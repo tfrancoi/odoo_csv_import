@@ -2,7 +2,7 @@
 #Need to launch odoo database accessible with the configuration given in conf/connection.conf
 #Modules contacts need to be installed
 #EXEC="python2"
-for EXEC in "python3" "python2" "coverage run -a"
+for EXEC in "python2" "python3" "python3.7" "coverage run -a"
 do
   echo "============== Test $EXEC =============="
   rm -rf data
