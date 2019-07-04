@@ -1,0 +1,21 @@
+Company_ID;Company_Name;Phone;www;Account_Manager;address1;city;zip code;country;IsCustomer;IsSupplier;Language;Image;
+COM15602;Company BV;8988 2436428   ;www.company.com;Thibault;Rue de la poste;Brussel;14589;Belgique;1;0;English;https://github.com/tfrancoi/odoo_csv_import/raw/master/tests/origin/img/employee_al-image.jpg;
+COM12639;John SPRL;56528 221505;www.john.fr;Francois;Downing Street;Paris;14590;FR;1;;English;https://github.com/tfrancoi/odoo_csv_import/raw/master/tests/origin/img/employee_chs-image.jpg;
+COM20695;Odoo SA;98779 342 19 45 ;www.odoo.com;Francois;La prèle, 3;New york;14591;U.S;1;0;English;https://github.com/tfrancoi/odoo_csv_import/raw/master/tests/origin/img/employee_djj-image.png;
+COM7663;Kangoo LTD;1310 3240077;;Francois;Glass AV;Amsterdam;14592;U.S;1;;English;https://github.com/tfrancoi/odoo_csv_import/raw/master/tests/origin/img/employee_dzc-image.jpg;
+COM23594;Odoo INC;0465476 392761;;Thibault;Home sweet Home;Mechelen;14593;BE;1;;English;https://github.com/tfrancoi/odoo_csv_import/raw/master/tests/origin/img/employee_fme-image.jpg;
+COM25801;Mike Corsoft inc;6456444-7070;www.mike.crosfot;Thibault;PO Box 13821;Lyon;14594;FR;;1;Dutch;https://github.com/tfrancoi/odoo_csv_import/raw/master/tests/origin/img/employee_fpi-image.jpg;
+COM7778;Odoo Limited;679789 5034221;;Francois;Marnixstraat 21;SF;14595;U.S;;;English;https://github.com/tfrancoi/odoo_csv_import/raw/master/tests/origin/img/employee_fp-image.jpg;
+COM12268;Thomas sprl;65479845 5275812;;Thibault;Eggelaan 23;Delft;14596;NL;;;English;https://github.com/tfrancoi/odoo_csv_import/raw/master/tests/origin/img/employee_han-image.png;
+COM18683;Bois&co;654798 50 67 08 72;;Francois;J en M Sabbestraat 11;Marche-en-famenne;14597;Belgique;1;;English;https://github.com/tfrancoi/odoo_csv_import/raw/master/tests/origin/img/employee_hne-image.png;
+COM23750;Roger Namur;6579 2 729 51 03;www.sa.eu;Francois;Rue de la Fusée 96;Namur;14598;Belgique;;;English;https://github.com/tfrancoi/odoo_csv_import/raw/master/tests/origin/img/employee-image.png;
+COM15632;Company BV;8988 2436428   ;www.company.com;Thibault;Rue de la poste;Brussel;14589;Belgique;1;;French;https://github.com/tfrancoi/odoo_csv_import/raw/master/tests/origin/img/employee_jep-image.jpg;
+COM12539;John SPRL;56528 221505;www.john.fr;Francois;Downing Street;Paris;14590;FR;1;;English;https://github.com/tfrancoi/odoo_csv_import/raw/master/tests/origin/img/employee_jgo-image.jpg;
+COM20295;Odoo SA;98779 342 19 45 ;www.odoo.com;Francois;La prèle, 3;New york;14591;U.S;1;;English;https://github.com/tfrancoi/odoo_csv_import/raw/master/tests/origin/img/employee_jod-image.png;
+COM7693;Kangoo LTD;1310 3240077;;Francois;Glass AV;Amsterdam;14592;U.S;1;;English;https://github.com/tfrancoi/odoo_csv_import/raw/master/tests/origin/img/employee_jog-image.jpg;
+COM2344;Odoo INC;0465476 392761;;Thibault;Home sweet Home;Mechelen;14593;BE;1;;English;https://github.com/tfrancoi/odoo_csv_import/raw/master/tests/origin/img/employee_jth-image.png;
+COM22501;Mike Corsoft inc;6456444-7070;www.mike.crosfot;Thibault;PO Box 13821;Lyon;14594;FR;;1;English;https://github.com/tfrancoi/odoo_csv_import/raw/master/tests/origin/img/employee_jve-image.jpg;
+COM77238;Odoo Limited;679789 5034221;;Francois;Marnixstraat 21;SF;14595;U.S;;;Dutch;https://github.com/tfrancoi/odoo_csv_import/raw/master/tests/origin/img/employee_lur-image.png;
+COM122648;Thomas sprl;65479845 5275812;;Thibault;Eggelaan 23;Delft;14596;NL;;;English;https://github.com/tfrancoi/odoo_csv_import/raw/master/tests/origin/img/employee_mit-image.png;
+;Bois&co;654798 50 67 08 72;;Francois;J en M Sabbestraat 11;Marche-en-famenne;14597;Belgique;1;;English;https://github.com/tfrancoi/odoo_csv_import/raw/master/tests/origin/img/employee_ngh-image.jpg
+COM237540;;6579 2 729 51 03;www.verylongwebsitename-tocause-check-length-failed.eu;Francois;Rue de la Fusée 96;Namur;14598;Belgique;;;English;https://github.com/tfrancoi/odoo_csv_import/raw/master/tests/origin/img/employee_niv-image.jpg;

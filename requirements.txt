@@ -1,3 +1,4 @@
 odoo-client-lib==1.2.0
 unicodecsv==0.14.1
 future==0.16.0
+requests==2.11.1

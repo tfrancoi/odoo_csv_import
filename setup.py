@@ -18,14 +18,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 from setuptools import setup, find_packages
 
 setup(name='odoo-import-export-client',
-      version='2.1.3',
-      install_requires=['odoo-client-lib', 'future', 'unicodecsv'],
+      version='2.2.0',
+      install_requires=['odoo-client-lib', 'future', 'unicodecsv', 'requests'],
       description='Library and script that allow to export and import data to Odoo using rpc api.',
       author='Thibault Francois',
       author_email='francois.th@gmail.com',
       url='https://github.com/tfrancoi/odoo_csv_import',
       packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
-      scripts=['odoo_export_thread.py', 'odoo_import_thread.py'],
+      scripts=['odoo_export_thread.py', 'odoo_import_thread.py', 'odoo_convert_path_to_image.py', 'odoo_convert_url_to_image.py'],
       long_description="See the home page for any information: https://github.com/tfrancoi/odoo_csv_import",
       keywords="odoo library import export thread python client lib web service",
       license="LGPLv3",

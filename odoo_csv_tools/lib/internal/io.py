@@ -55,6 +55,8 @@ def write_file(filename=None, header=None, data=None, fail=False, model="auto",
     context = '--context="%s"' % str(context) if context else ''
     conf_file = conf_file or "%s%s%s" % ('conf', os.sep, 'connection.conf')
     write_csv(filename, header, data)
+    if not launchfile:
+        return
 
     mode = init and 'w' or 'a'
     with open(launchfile, mode) as myfile:

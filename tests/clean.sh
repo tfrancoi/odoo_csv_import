@@ -11,3 +11,4 @@ rm 3_product_import.sh
 rm 4_product_import.sh
 rm .coverage
 rm error.log
+rm out.csv

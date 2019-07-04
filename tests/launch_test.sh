@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 #Need to launch odoo database accessible with the configuration given in conf/connection.conf
+#test works well on V11
 #Modules contacts need to be installed
 #EXEC="python2"
 for EXEC in "python2" "python3" "python3.7" "coverage run -a"
@@ -29,5 +30,7 @@ do
   sh 5_partner_export.sh "$EXEC"
   echo "> Import One2Many"
   sh 6_o2m_import.sh "$EXEC"
+  echo "> Convert Binary"
+  sh 7_convert_binary.sh "$EXEC"
   coverage html
 done

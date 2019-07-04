@@ -61,7 +61,7 @@ class Processor(object):
                 }
         """
         mapping = {}
-        for column in self.header:
+        for column in [h for h in self.header if h]:
             map_val_rep = ReprWrapper("mapper.val('%s')" %column, mapper.val(column))
             mapping[str(column)] = map_val_rep
         return mapping

@@ -6,6 +6,7 @@ from . internal.io import is_string
 from . internal.exceptions import SkippingException
 import base64
 import os
+import requests
 
 def str_to_mapper(field):
     if is_string(field):
@@ -145,6 +146,27 @@ def binary_map(mapper, path_prefix, skip=False, encoding="utf-8"):
 def binary(field, path_prefix, skip=False, encoding="utf-8"):
     return binary_map(val(field), path_prefix, skip=skip, encoding=encoding)
 
+
+
+def binary_url_map(mapper, skip=False, verbose=False):
+    def binary_url_fun(line):
+        url = mapper(line)
+        if verbose:
+            print("Fetch %s" % url)
+        res = requests.get(url)
+        if not res.status_code == 200:
+            if skip:
+                raise SkippingException("Cannot fetch file at url %s" % url)
+            return ''
+
+        return base64.b64encode(res.content)
+    return binary_url_fun
+
+def binary_url(field, skip=False, verbose=False):
+    return binary_url_map(val(field), skip=skip, verbose=verbose)
+
+
+
 """
     Specific to attribute mapper for V9 product.attribute_import
 """
@@ -255,6 +277,17 @@ def m2m_value_list(*args, **kwargs):
                 s.append(val)
         return s
     return split_m2m_value_fun
+
+def remove_sep_mapper(f):
+    """
+        @param f: field that will have the starting folder separator removed
+    """
+    def remove_sep_mapper_fun(line):
+        if line[f].startswith(os.sep):
+            return line[f][len(os.sep):]
+        else:
+            return line[f]
+    return remove_sep_mapper_fun
 
 
 ##############################
