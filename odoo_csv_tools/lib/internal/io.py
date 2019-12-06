@@ -45,7 +45,7 @@ def write_csv(filename, header, data):
 
 def write_file(filename=None, header=None, data=None, fail=False, model="auto",
                launchfile="import_auto.sh", worker=1, batch_size=10, init=False,
-               conf_file=False, groupby='', sep=";", python_exe='python', path='./', context=None, ignore=""):
+               conf_file=False, groupby='', sep=";", python_exe='python', path='', context=None, ignore=""):
     def get_model():
         if model == "auto":
             return filename.split(os.sep)[-1][:-4]
@@ -58,13 +58,21 @@ def write_file(filename=None, header=None, data=None, fail=False, model="auto",
     if not launchfile:
         return
 
+    if not path.endswith(os.sep):
+        path = os.path.join(path, "")
+
+    py_script = 'odoo_import_thread.py'
+    os_cmd = os.path.join(path, py_script)
+    if ' ' in os_cmd:
+        os_cmd =''.join(('"', os_cmd, '"'))
+
     mode = init and 'w' or 'a'
     with open(launchfile, mode) as myfile:
-        myfile.write("%s %sodoo_import_thread.py -c %s --file=%s --model=%s --worker=%s --size=%s --groupby=%s --ignore=%s --sep=\"%s\" %s\n" %
-                    (python_exe, path, conf_file, filename, get_model(), worker, batch_size, groupby, ignore, sep, context))
+        myfile.write("%s %s -c %s --file=%s --model=%s --worker=%s --size=%s --groupby=%s --ignore=%s --sep=\"%s\" %s\n" %
+                    (python_exe, os_cmd, conf_file, filename, get_model(), worker, batch_size, groupby, ignore, sep, context))
         if fail:
-            myfile.write("%s %sodoo_import_thread.py -c %s --fail --file=%s --model=%s --ignore=%s --sep=\"%s\" %s\n" %
-                         (python_exe, path, conf_file, filename, get_model(), ignore, sep, context))
+            myfile.write("%s %s -c %s --fail --file=%s --model=%s --ignore=%s --sep=\"%s\" %s\n" %
+                         (python_exe, os_cmd, conf_file, filename, get_model(), ignore, sep, context))
 
 
 ################################################
