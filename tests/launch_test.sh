@@ -32,5 +32,7 @@ do
   sh 6_o2m_import.sh "$EXEC"
   echo "> Convert Binary"
   sh 7_convert_binary.sh "$EXEC"
+  echo "Test join"
+  $EXEC test_merge.py
   coverage html
 done
