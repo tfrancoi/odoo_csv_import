@@ -74,7 +74,7 @@ class Processor(object):
         self._add_data(head, data, filename_out, import_args)
         return head, data
 
-    def write_to_file(self, script_filename, fail=True, append=False, python_exe='python', path='./'):
+    def write_to_file(self, script_filename, fail=True, append=False, python_exe='', path=''):
         init = not append
         for _, info in self.file_to_write.items():
             info_copy = dict(info)

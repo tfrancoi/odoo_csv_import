@@ -45,7 +45,7 @@ def write_csv(filename, header, data):
 
 def write_file(filename=None, header=None, data=None, fail=False, model="auto",
                launchfile="import_auto.sh", worker=1, batch_size=10, init=False,
-               conf_file=False, groupby='', sep=";", python_exe='python', path='./', context=None, ignore=""):
+               conf_file=False, groupby='', sep=";", python_exe='', path='', context=None, ignore=""):
     def get_model():
         if model == "auto":
             return filename.split(os.sep)[-1][:-4]
