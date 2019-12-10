@@ -19,7 +19,7 @@ def is_string(f):
     else:
         return isinstance(f, basestring)
 
-def open_read(f, encoding='utf-8-sig'):
+def open_read(f, encoding='utf-8'):
     if not is_string(f):
         return f
     if sys.version_info >= (3, 0, 0):
@@ -27,7 +27,7 @@ def open_read(f, encoding='utf-8-sig'):
     else:
         return open(f, 'r')
 
-def open_write(f, encoding='utf-8-sig'):
+def open_write(f, encoding='utf-8'):
     if not is_string(f):
         return f
     if sys.version_info >= (3, 0, 0):
@@ -35,16 +35,16 @@ def open_write(f, encoding='utf-8-sig'):
     else:
         return open(f, "w")
 
-def write_csv(filename, header, data):
-    file_result = open_write(filename)
-    c = UnicodeWriter(file_result, delimiter=';', quoting=csv.QUOTE_ALL)
+def write_csv(filename, header, data, encoding="utf-8"):
+    file_result = open_write(filename, encoding=encoding)
+    c = UnicodeWriter(file_result, delimiter=';', quoting=csv.QUOTE_ALL, encoding=encoding)
     c.writerow(header)
     for d in data:
         c.writerow(d)
     file_result.close()
 
 def write_file(filename=None, header=None, data=None, fail=False, model="auto",
-               launchfile="import_auto.sh", worker=1, batch_size=10, init=False,
+               launchfile="import_auto.sh", worker=1, batch_size=10, init=False, encoding="utf-8",
                conf_file=False, groupby='', sep=";", python_exe='', path='', context=None, ignore=""):
     def get_model():
         if model == "auto":
@@ -54,17 +54,17 @@ def write_file(filename=None, header=None, data=None, fail=False, model="auto",
 
     context = '--context="%s"' % str(context) if context else ''
     conf_file = conf_file or "%s%s%s" % ('conf', os.sep, 'connection.conf')
-    write_csv(filename, header, data)
+    write_csv(filename, header, data, encoding=encoding)
     if not launchfile:
         return
 
     mode = init and 'w' or 'a'
     with open(launchfile, mode) as myfile:
-        myfile.write("%s %sodoo_import_thread.py -c %s --file=%s --model=%s --worker=%s --size=%s --groupby=%s --ignore=%s --sep=\"%s\" %s\n" %
-                    (python_exe, path, conf_file, filename, get_model(), worker, batch_size, groupby, ignore, sep, context))
+        myfile.write("%s %sodoo_import_thread.py -c %s --file=%s --model=%s --encoding=%s --worker=%s --size=%s --groupby=%s --ignore=%s --sep=\"%s\" %s\n" %
+                    (python_exe, path, conf_file, filename, get_model(), encoding, worker, batch_size, groupby, ignore, sep, context))
         if fail:
-            myfile.write("%s %sodoo_import_thread.py -c %s --fail --file=%s --model=%s --ignore=%s --sep=\"%s\" %s\n" %
-                         (python_exe, path, conf_file, filename, get_model(), ignore, sep, context))
+            myfile.write("%s %sodoo_import_thread.py -c %s --fail --file=%s --model=%s --encoding=%s --ignore=%s --sep=\"%s\" %s\n" %
+                         (python_exe, path, conf_file, filename, get_model(), encoding, ignore, sep, context))
 
 class ListWriter(object):
     def __init__(self):

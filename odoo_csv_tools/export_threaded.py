@@ -70,11 +70,11 @@ class RPCThreadExport(RpcThread):
 
 
 def export_data(config_file, model, domain, header, context=None, output=None, max_connection=1, batch_size=100,
-                separator=';', encoding='utf-8-sig'):
+                separator=';', encoding='utf-8'):
     object_registry = conf_lib.get_server_connection(config_file).get_model(model)
 
     if output:
-        file_result = open_write(output)
+        file_result = open_write(output, encoding=encoding)
         writer = UnicodeWriter(file_result, delimiter=separator, encoding=encoding, quoting=csv.QUOTE_ALL)
     else:
         writer = ListWriter()

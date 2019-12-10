@@ -138,7 +138,7 @@ def binary_map(mapper, path_prefix, skip=False, encoding="utf-8"):
             return ''
 
         with open(path, "rb") as image_file:
-                encoded_string = base64.b64encode(image_file.read()).decode("utf-8")
+                encoded_string = base64.b64encode(image_file.read()).decode(encoding)
                 image_file.close()
         return encoded_string
     return binary_val
@@ -148,7 +148,7 @@ def binary(field, path_prefix, skip=False, encoding="utf-8"):
 
 
 
-def binary_url_map(mapper, skip=False, verbose=False):
+def binary_url_map(mapper, skip=False, verbose=False, encoding="utf-8"):
     def binary_url_fun(line):
         url = mapper(line)
         if verbose:
@@ -159,7 +159,7 @@ def binary_url_map(mapper, skip=False, verbose=False):
                 raise SkippingException("Cannot fetch file at url %s" % url)
             return ''
 
-        return base64.b64encode(res.content).decode("utf-8")
+        return base64.b64encode(res.content).decode(encoding)
     return binary_url_fun
 
 def binary_url(field, skip=False, verbose=False):

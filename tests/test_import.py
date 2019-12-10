@@ -61,4 +61,4 @@ processor.process(mapping, output, {
     'batch_size': 100,
     'model': 'res.partner',
 })
-processor.write_to_file(script, python_exe=EXEC, path='../')
+processor.write_to_file(script, python_exe=EXEC, path='../', encoding="utf-8-sig")
