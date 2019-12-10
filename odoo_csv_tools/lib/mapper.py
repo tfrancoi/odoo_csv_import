@@ -159,7 +159,7 @@ def binary_url_map(mapper, skip=False, verbose=False):
                 raise SkippingException("Cannot fetch file at url %s" % url)
             return ''
 
-        return base64.b64encode(res.content)
+        return base64.b64encode(res.content).decode("utf-8")
     return binary_url_fun
 
 def binary_url(field, skip=False, verbose=False):
