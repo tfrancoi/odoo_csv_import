@@ -18,7 +18,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 from setuptools import setup, find_packages
 
 setup(name='odoo-import-export-client',
-      version='2.2.0',
+      version='3.0.0',
       install_requires=['odoo-client-lib', 'future', 'unicodecsv', 'requests'],
       description='Library and script that allow to export and import data to Odoo using rpc api.',
       author='Thibault Francois',
