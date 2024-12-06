@@ -17,7 +17,7 @@ def batch(iterable, size):
     Data formatting tools
 """
 def to_xmlid(name):
-    return name.replace('.', '_').replace(',', '_').replace('\n', '_').strip()
+    return name.replace('.', '_').replace(',', '_').replace('\n', '_').replace(' ', '_').strip()
 
 def list_to_xml_id(names):
     return '_'.join([to_xmlid(name) for name in names])
